@@ -120,4 +120,4 @@ Driver for the Sick S300 Safety laser scanners.
 [ROS2]: https://docs.ros.org/en/galactic/
 [sensor_msgs/LaserScan]: https://docs.ros2.org/galactic/api/sensor_msgs/msg/LaserScan.html
 [std_msgs/Bool]: https://docs.ros2.org/galactic/api/std_msgs/msg/Bool.html
-[diagnostic_msgs/Bool]: https://docs.ros2.org/galactic/api/diagnostic_msgs/msg/DiagnosticArray.html
+[diagnostic_msgs/DiagnosticArray]: https://docs.ros2.org/galactic/api/diagnostic_msgs/msg/DiagnosticArray.html
