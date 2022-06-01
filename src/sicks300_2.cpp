@@ -15,58 +15,57 @@ SickS3002::SickS3002(const std::string& name): Node(name){
 	// Initialize node
 	if (!this->has_parameter(("port"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for port");
-		port_ = this->declare_parameter("port", std::string("/dev/ttyUSB0"));
-	}else{
-		this->get_parameter("port", port_);
+		this->declare_parameter("port");
 	}
+	this->get_parameter_or("port", port_, std::string("/dev/ttyUSB0"));
+
 	if (!this->has_parameter(("baud"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for baud");
-		baud_ = this->declare_parameter("baud", 500000);
-	}else{
-		this->get_parameter("baud", baud_);
+		this->declare_parameter("baud");
 	}
+	this->get_parameter_or("baud", baud_, 500000);
+
 	if (!this->has_parameter(("scan_id"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for scan_id");
-		scanId_ = this->declare_parameter("scan_id", 7);
-	}else{
-		this->get_parameter("scan_id", scanId_);
+		this->declare_parameter("scan_id");
 	}
+	this->get_parameter_or("scan_id", scanId_, 7);
+
 	if (!this->has_parameter(("inverted"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for inverted");
-		inverted_ = this->declare_parameter("inverted", false);
-	}else{
-		this->get_parameter("inverted", inverted_);
+		this->declare_parameter("inverted");
 	}
+	this->get_parameter_or("inverted", inverted_, false);
+
 	if (!this->has_parameter(("frame_id"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for frame_id");
-		frameId_ = this->declare_parameter("frame_id", std::string("base_laser_link"));
-	}else{
-		this->get_parameter("frame_id", frameId_);
+		this->declare_parameter("frame_id");
 	}
+	this->get_parameter_or("frame_id", frameId_, std::string("base_laser_link"));
+
 	if (!this->has_parameter(("scan_duration"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for scan_duration");
-		scanDuration_ = this->declare_parameter("scan_duration", 0.025); //no info about that in SICK-docu, but 0.025 is believable and looks good in rviz
-	}else{
-		this->get_parameter("scan_duration", scanDuration_);
+		this->declare_parameter("scan_duration");
 	}
+	this->get_parameter_or("scan_duration", scanDuration_, 0.025); //no info about that in SICK-docu, but 0.025 is believable and looks good in rviz
+
 	if (!this->has_parameter(("scan_cycle_time"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for scan_cycle_time");
-		scanCycleTime_ = this->declare_parameter("scan_cycle_time", 0.040); //SICK-docu says S300 scans every 40ms
-	}else{
-		this->get_parameter("scan_cycle_time", scanCycleTime_);
+		this->declare_parameter("scan_cycle_time");
 	}
+	this->get_parameter_or("scan_cycle_time", scanCycleTime_, 0.040); //SICK-docu says S300 scans every 40ms
+
 	if (!this->has_parameter(("debug"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for debug");
-		debug_ = this->declare_parameter("debug", false);
-	}else{
-		this->get_parameter("debug", debug_);
+		this->declare_parameter("debug");
 	}
+	this->get_parameter_or("debug", debug_, false);
+
 	if (!this->has_parameter(("communication_timeout"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for communication_timeout");
-		communicationTimeout_ = this->declare_parameter("communication_timeout", 0.2);
-	}else{
-		this->get_parameter("communication_timeout", communicationTimeout_);
+		this->declare_parameter("communication_timeout");
 	}
+	this->get_parameter_or("communication_timeout", communicationTimeout_, 0.2);
 
 	/*try{
 		//get params for each measurement
