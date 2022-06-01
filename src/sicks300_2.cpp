@@ -124,7 +124,7 @@ SickS3002::SickS3002(const std::string& name): Node(name){
 	}*/
 
 	syncedSICKStamp_ = 0;
-	syncedROSTime_ = rclcpp::Node::now();
+	syncedROSTime_ = this->now();
 	syncedTimeReady_ = false;
 
 	// Implementation of topics to publish
@@ -189,7 +189,7 @@ void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double
 	// Sync handling: find out exact scan time by using the syncTime-syncStamp pair:
 	// Timestamp: "This counter is internally incremented at each scan, i.e. every 40 ms (S300)"
 	if (iSickNow != 0){
-		syncedROSTime_ = rclcpp::Node::now() - rclcpp::Duration(scanCycleTime_);
+		syncedROSTime_ = this->now() - rclcpp::Duration::from_seconds(scanCycleTime_);
 		syncedSICKStamp_ = iSickNow;
 		syncedTimeReady_ = true;
 
@@ -202,11 +202,11 @@ void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double
 	sensor_msgs::msg::LaserScan laserScan;
 	if (syncedTimeReady_){
 		double timeDiff = (int)(iSickTimeStamp - syncedSICKStamp_) * scanCycleTime_;
-		laserScan.header.stamp = syncedROSTime_ + rclcpp::Duration(timeDiff);
+		laserScan.header.stamp = syncedROSTime_ + rclcpp::Duration::from_seconds(timeDiff);
 
-		RCLCPP_DEBUG(this->get_logger(), "Time::now() - calculated sick time stamp = %f",(rclcpp::Node::now() - laserScan.header.stamp).seconds());
+		RCLCPP_DEBUG(this->get_logger(), "Time::now() - calculated sick time stamp = %f",(this->now() - laserScan.header.stamp).seconds());
 	}else{
-		laserScan.header.stamp = rclcpp::Node::now();
+		laserScan.header.stamp = this->now();
 	}
 
 	// Fill message
@@ -223,14 +223,13 @@ void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double
 	laserScan.ranges.resize(num_readings);
 	laserScan.intensities.resize(num_readings);
 
-
 	// Check for inverted laser
 	if (inverted_){
 		// to be really accurate, we now invert time_increment
-		// laserScan.header.stamp = laserScan.header.stamp + ros::Duration(scan_duration); //adding of the sum over all negative increments would be mathematically correct, but looks worse.
+		// laserScan.header.stamp = rclcpp::Time(laserScan.header.stamp) + rclcpp::Duration::from_seconds(scanDuration_); //adding of the sum over all negative increments would be mathematically correct, but looks worse.
 		laserScan.time_increment = - laserScan.time_increment;
 	}else{
-		laserScan.header.stamp = laserScan.header.stamp - rclcpp::Duration(scanDuration_); //to be consistent with the omission of the addition above
+		laserScan.header.stamp = rclcpp::Time(laserScan.header.stamp) - rclcpp::Duration::from_seconds(scanDuration_); //to be consistent with the omission of the addition above
 	}
 
 	for (int i = 0; i < (stop_scan - start_scan); i++){
@@ -248,7 +247,7 @@ void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double
 
 	// Diagnostics
 	diagnostic_msgs::msg::DiagnosticArray diagnostics;
-	diagnostics.header.stamp = rclcpp::Node::now();
+	diagnostics.header.stamp = this->now();
 	diagnostics.status.resize(1);
 	diagnostics.status[0].level = 0;
 	diagnostics.status[0].name = this->get_namespace();
@@ -258,7 +257,7 @@ void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double
 
 void SickS3002::publishError(std::string error){
 	diagnostic_msgs::msg::DiagnosticArray diagnostics;
-	diagnostics.header.stamp = rclcpp::Node::now();
+	diagnostics.header.stamp = this->now();
 	diagnostics.status.resize(1);
 	diagnostics.status[0].level = 2;
 	diagnostics.status[0].name = this->get_namespace();
@@ -268,7 +267,7 @@ void SickS3002::publishError(std::string error){
 
 void SickS3002::publishWarn(std::string warn){
 	diagnostic_msgs::msg::DiagnosticArray diagnostics;
-	diagnostics.header.stamp = rclcpp::Node::now();
+	diagnostics.header.stamp = this->now();
 	diagnostics.status.resize(1);
 	diagnostics.status[0].level = 1;
 	diagnostics.status[0].name = this->get_namespace();
