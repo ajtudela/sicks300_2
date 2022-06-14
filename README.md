@@ -28,8 +28,7 @@ Here are a few notes about how to best configure the S300:
     - For protocol 1.40: only configure one measurement range field with the full range (-45° to 225°) with all values.
     - For protocol 2.10: do not configure a measurement range field
       (otherwise, the scanner only provides a lower frequency).
-- If you want to only use certain measurement ranges, do this on the ROS side using e.g. the `cob_scan_filter`
-located in this package as well.
+- If you want to only use certain measurement ranges, do this on the ROS side using e.g. the `laser_filters` package.
 
 ## Installation
 

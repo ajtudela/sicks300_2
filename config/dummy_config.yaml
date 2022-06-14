@@ -8,7 +8,6 @@ laser_front:
     scan_id: 7
     frame_id: /base_laser_link
     scan_topic: scan
-    scan_intervals: [[-1.3526, 1.361357]] # [rad] these intervals are included to the scan
     fields:
       '1':
         scale: 1.0
@@ -19,3 +18,12 @@ laser_front:
         start_angle: -11.0
         stop_angle: 12.0
     debug: false
+
+scan_filter:
+  ros__parameters:
+    filter1:
+      name: scan_filter
+      type: laser_filters/LaserScanAngularBoundsFilter
+      params:
+        lower_angle: -1.3526
+        upper_angle: 1.361357
