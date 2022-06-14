@@ -51,7 +51,7 @@ SickS3002::SickS3002(const std::string& name): Node(name, rclcpp::NodeOptions().
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for scan_topic");
 		scan_topic_ = this->declare_parameter("scan_topic", std::string("scan"));
 	}else{
-		this->get_parameter("frame_id", frame_id_);
+		this->get_parameter("scan_topic", scan_topic_);
 	}
 	if (!this->has_parameter(("scan_duration"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for scan_duration");
