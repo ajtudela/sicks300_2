@@ -9,9 +9,13 @@
  *
  */
 
+#include <map>
+
+#include <rcpputils/split.hpp>
+
 #include "sicks300_2/sicks300_2.hpp"
 
-SickS3002::SickS3002(const std::string& name): Node(name){
+SickS3002::SickS3002(const std::string& name): Node(name, rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true)){
 	// Initialize node
 	if (!this->has_parameter(("port"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for port");
@@ -68,60 +72,56 @@ SickS3002::SickS3002(const std::string& name): Node(name){
 		this->get_parameter("communication_timeout", communicationTimeout_);
 	}
 
-	/*try{
-		//get params for each measurement
-		XmlRpc::XmlRpcValue field_params;
-		if(nh.getParam("fields",field_params) && field_params.getType() == XmlRpc::XmlRpcValue::TypeStruct)
-		{
-			for(XmlRpc::XmlRpcValue::iterator field=field_params.begin(); field!=field_params.
-			end(); field++)
-			{
-				int field_number = boost::lexical_cast<int>(field->first);
-				ROS_DEBUG("Found field %d in params", field_number);
+	// TODO: Rework this
+	auto parameters_and_prefixes = list_parameters({"fields"}, 5);
+	if (!parameters_and_prefixes.names.empty()){
+		// Get the fields numbers
+		std::vector<int> field_numbers;
+		for (const std::string &name : parameters_and_prefixes.names){
+			auto tokens = rcpputils::split(name, '.');
+			field_numbers.push_back(std::stoi(tokens[1]));
+		}
+		auto last = std::unique(field_numbers.begin(),field_numbers.end());
+		field_numbers.erase(last, field_numbers.end());
 
-				if(!field->second.hasMember("scale"))
-				{
-					ROS_ERROR("Missing parameter scale");
-					continue;
-				}
+		// Get the parameters
+		for (const int& field_number : field_numbers){
+			RCLCPP_DEBUG(this->get_logger(), "Found field %d in params", field_number);
 
-				if(!field->second.hasMember("start_angle"))
-				{
-					ROS_ERROR("Missing parameter start_angle");
-					continue;
-				}
-
-				if(!field->second.hasMember("stop_angle"))
-				{
-					ROS_ERROR("Missing parameter stop_angle");
-					continue;
-				}
-
-				ScannerSickS300::ParamType param;
-				param.dScale = field->second["scale"];
-				param.dStartAngle = field->second["start_angle"];
-				param.dStopAngle = field->second["stop_angle"];
-				scanner_.setRangeField(field_number, param);
-
-				ROS_DEBUG("params %f %f %f", param.dScale, param.dStartAngle, param.dStopAngle);
+			std::string scale_param("fields." + std::to_string(field_number) + ".scale");
+			if (!this->has_parameter(scale_param)){
+				RCLCPP_ERROR(this->get_logger(), "Missing parameter scale");
+				continue;
 			}
-		}
-		else
-		{
-			//ROS_WARN("No params for the Sick S300 fieldset were specified --> will using default, but it's deprecated now, please adjust parameters!!!");
 
-			//setting defaults to be backwards compatible
+			std::string start_angle_param("fields." + std::to_string(field_number) + ".start_angle");
+			if (!this->has_parameter(start_angle_param)){
+				RCLCPP_ERROR(this->get_logger(), "Missing parameter start_angle");
+				continue;
+			}
+
+			std::string stop_angle_param("fields." + std::to_string(field_number) + ".stop_angle");
+			if (!this->has_parameter(stop_angle_param)){
+				RCLCPP_ERROR(this->get_logger(), "Missing parameter stop_angle");
+				continue;
+			}
+
 			ScannerSickS300::ParamType param;
-			param.dScale = 0.01;
-			param.dStartAngle = -135.0/180.0*M_PI;
-			param.dStopAngle = 135.0/180.0*M_PI;
-			scanner_.setRangeField(1, param);
+			param.dScale = get_parameter(scale_param).get_value<double>();
+			param.dStartAngle = get_parameter(start_angle_param).get_value<double>();
+			param.dStopAngle = get_parameter(stop_angle_param).get_value<double>();
+			scanner_.setRangeField(field_number, param);
+
+			RCLCPP_DEBUG(this->get_logger(), "params %f %f %f", param.dScale, param.dStartAngle, param.dStopAngle);
 		}
-	}catch(XmlRpc::XmlRpcException e){
-		ROS_ERROR_STREAM("Not all params for the Sick S300 fieldset could be read: " << e.getMessage() << "! Error code: " << e.getCode());
-		ROS_ERROR("Node is going to shut down.");
-		exit(-1);
-	}*/
+	}else{
+		// Setting defaults to be backwards compatible
+		ScannerSickS300::ParamType param;
+		param.dScale = 0.01;
+		param.dStartAngle = -135.0 / 180.0 * M_PI;
+		param.dStopAngle = 135.0 / 180.0 * M_PI;
+		scanner_.setRangeField(1, param);
+	}
 
 	syncedSICKStamp_ = 0;
 	syncedROSTime_ = this->now();
