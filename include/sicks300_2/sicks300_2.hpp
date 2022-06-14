@@ -18,7 +18,6 @@
 // BOOST
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/lexical_cast.hpp>
 
 // ROS
 #include "rclcpp/rclcpp.hpp"
@@ -29,9 +28,6 @@
 // Common
 #include "common/ScannerSickS300.h"
 
-//#include <XmlRpcException.h>
-//#define ROS_LOG_FOUND
-
 class SickS3002: public rclcpp::Node{
 	public:
 		SickS3002(const std::string& name);
@@ -40,23 +36,23 @@ class SickS3002: public rclcpp::Node{
 		bool open();
 		std::string getPort();
 		bool receiveScan();
-		void publishStandby(bool inStandby);
+		void publishStandby(bool in_standby);
 		void publishLaserScan(std::vector<double> vdDistM, std::vector<double> vdAngRAD, std::vector<double> vdIntensAU, unsigned int iSickTimeStamp, unsigned int iSickNow);
 		void publishError(std::string error);
 		void publishWarn(std::string warn);
 
 	private:
-		rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr laserScanPub_;
-		rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr inStandbyPub_;
-		rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diagPub_;
-		std_msgs::msg::Bool inStandby_;
-		rclcpp::Time syncedROSTime_;
+		rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_pub_;
+		rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr in_standby_pub_;
+		rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr diag_pub_;
+		std_msgs::msg::Bool in_standby_;
+		rclcpp::Time synced_ros_time_;
 
-		std::string frameId_, port_;
-		int baud_, scanId_;
-		bool inverted_, debug_, syncedTimeReady_;
-		unsigned int syncedSICKStamp_;
-		double scanDuration_, scanCycleTime_, communicationTimeout_;
+		std::string frame_id_, scan_topic_, port_;
+		int baud_, scan_id_;
+		bool inverted_, debug_, synced_time_ready_;
+		unsigned int synced_sick_stamp_;
+		double scan_duration_, scan_cycle_time_, communication_timeout_;
 		ScannerSickS300 scanner_;
 };
 #endif

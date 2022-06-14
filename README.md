@@ -14,9 +14,9 @@ However, it does not cover the full functionality of the protocol:
 - It does not handle I/O-data or reflector data
 (though it reads the reflector marker field in the distance measurements)
 
-**Keywords:** ROS2, laser, driver
+**Keywords:** ROS2, laser, driver, sick s300
 
-The sicks300_2 package has been tested under [ROS2] Galactic on [Ubuntu] 20.04. This code is manly based on [cob_sick_s300](http://wiki.ros.org/cob_sick_s300) but ported to ROS2; expect that it changes often and any fitness for a particular purpose is disclaimed.
+The sicks300_2 package has been tested under [ROS2] Galactic on [Ubuntu] 20.04. This code is mainly based on [cob_sick_s300](http://wiki.ros.org/cob_sick_s300) but ported to ROS2; expect that it changes often and any fitness for a particular purpose is disclaimed.
 
 ## S300 Configuration
 Here are a few notes about how to best configure the S300:
@@ -95,6 +95,10 @@ Driver for the Sick S300 Safety laser scanners.
 * **`inverted`** (bool, default: false)
 
 	Option to invert the direction of the measurements.
+
+* **`scan_topic`** (string, default: "scan")
+
+	The topic where the laser scan will be published.
 
 * **`frame_id`** (string, default: "base_laser_link")
 

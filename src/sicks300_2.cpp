@@ -31,9 +31,9 @@ SickS3002::SickS3002(const std::string& name): Node(name, rclcpp::NodeOptions().
 	}
 	if (!this->has_parameter(("scan_id"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for scan_id");
-		scanId_ = this->declare_parameter("scan_id", 7);
+		scan_id_ = this->declare_parameter("scan_id", 7);
 	}else{
-		this->get_parameter("scan_id", scanId_);
+		this->get_parameter("scan_id", scan_id_);
 	}
 	if (!this->has_parameter(("inverted"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for inverted");
@@ -43,21 +43,27 @@ SickS3002::SickS3002(const std::string& name): Node(name, rclcpp::NodeOptions().
 	}
 	if (!this->has_parameter(("frame_id"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for frame_id");
-		frameId_ = this->declare_parameter("frame_id", std::string("base_laser_link"));
+		frame_id_ = this->declare_parameter("frame_id", std::string("base_laser_link"));
 	}else{
-		this->get_parameter("frame_id", frameId_);
+		this->get_parameter("frame_id", frame_id_);
+	}
+	if (!this->has_parameter(("scan_topic"))){
+		RCLCPP_WARN(this->get_logger(), "Used default parameter for scan_topic");
+		scan_topic_ = this->declare_parameter("scan_topic", std::string("scan"));
+	}else{
+		this->get_parameter("frame_id", frame_id_);
 	}
 	if (!this->has_parameter(("scan_duration"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for scan_duration");
-		scanDuration_ = this->declare_parameter("scan_duration", 0.025); //no info about that in SICK-docu, but 0.025 is believable and looks good in rviz
+		scan_duration_ = this->declare_parameter("scan_duration", 0.025); //no info about that in SICK-docu, but 0.025 is believable and looks good in rviz
 	}else{
-		this->get_parameter("scan_duration", scanDuration_);
+		this->get_parameter("scan_duration", scan_duration_);
 	}
 	if (!this->has_parameter(("scan_cycle_time"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for scan_cycle_time");
-		scanCycleTime_ = this->declare_parameter("scan_cycle_time", 0.040); //SICK-docu says S300 scans every 40ms
+		scan_cycle_time_ = this->declare_parameter("scan_cycle_time", 0.040); //SICK-docu says S300 scans every 40ms
 	}else{
-		this->get_parameter("scan_cycle_time", scanCycleTime_);
+		this->get_parameter("scan_cycle_time", scan_cycle_time_);
 	}
 	if (!this->has_parameter(("debug"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for debug");
@@ -67,9 +73,9 @@ SickS3002::SickS3002(const std::string& name): Node(name, rclcpp::NodeOptions().
 	}
 	if (!this->has_parameter(("communication_timeout"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for communication_timeout");
-		communicationTimeout_ = this->declare_parameter("communication_timeout", 0.2);
+		communication_timeout_ = this->declare_parameter("communication_timeout", 0.2);
 	}else{
-		this->get_parameter("communication_timeout", communicationTimeout_);
+		this->get_parameter("communication_timeout", communication_timeout_);
 	}
 
 	// TODO: Rework this
@@ -123,21 +129,21 @@ SickS3002::SickS3002(const std::string& name): Node(name, rclcpp::NodeOptions().
 		scanner_.setRangeField(1, param);
 	}
 
-	syncedSICKStamp_ = 0;
-	syncedROSTime_ = this->now();
-	syncedTimeReady_ = false;
+	synced_sick_stamp_ = 0;
+	synced_ros_time_ = this->now();
+	synced_time_ready_ = false;
 
 	// Implementation of topics to publish
-	laserScanPub_ = this->create_publisher<sensor_msgs::msg::LaserScan>("scan", 1);
-	inStandbyPub_ = this->create_publisher<std_msgs::msg::Bool>("scan_standby", 1);
-	diagPub_ = this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>("/diagnostics", 1);
+	laser_scan_pub_ = this->create_publisher<sensor_msgs::msg::LaserScan>(scan_topic_, 1);
+	in_standby_pub_ = this->create_publisher<std_msgs::msg::Bool>("scan_standby", 1);
+	diag_pub_ = this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>("/diagnostics", 1);
 }
 
 SickS3002::~SickS3002(){
 }
 
 bool SickS3002::open(){
-	return scanner_.open(port_.c_str(), baud_, scanId_);
+	return scanner_.open(port_.c_str(), baud_, scan_id_);
 }
 
 std::string SickS3002::getPort(){
@@ -165,7 +171,7 @@ bool SickS3002::receiveScan(){
 	}else{
 		boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - pointTimeCommunicationOK;
 
-		if (diff.total_milliseconds() > static_cast<int>(1000*communicationTimeout_)){
+		if (diff.total_milliseconds() > static_cast<int>(1000*communication_timeout_)){
 			RCLCPP_WARN(this->get_logger(), "Communication timeout");
 			return false;
 		}
@@ -175,8 +181,8 @@ bool SickS3002::receiveScan(){
 }
 
 void SickS3002::publishStandby(bool inStandby){
-	inStandby_.data = inStandby;
-	inStandbyPub_->publish(inStandby_);
+	in_standby_.data = inStandby;
+	in_standby_pub_->publish(in_standby_);
 }
 
 void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double> vdAngRAD, std::vector<double> vdIntensAU, unsigned int iSickTimeStamp, unsigned int iSickNow){
@@ -189,20 +195,20 @@ void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double
 	// Sync handling: find out exact scan time by using the syncTime-syncStamp pair:
 	// Timestamp: "This counter is internally incremented at each scan, i.e. every 40 ms (S300)"
 	if (iSickNow != 0){
-		syncedROSTime_ = this->now() - rclcpp::Duration::from_seconds(scanCycleTime_);
-		syncedSICKStamp_ = iSickNow;
-		syncedTimeReady_ = true;
+		synced_ros_time_ = this->now() - rclcpp::Duration::from_seconds(scan_cycle_time_);
+		synced_sick_stamp_ = iSickNow;
+		synced_time_ready_ = true;
 
-		RCLCPP_DEBUG(this->get_logger(), "Got iSickNow, store sync-stamp: %d", syncedSICKStamp_);
+		RCLCPP_DEBUG(this->get_logger(), "Got iSickNow, store sync-stamp: %d", synced_sick_stamp_);
 	}else{
-		syncedTimeReady_ = false;
+		synced_time_ready_ = false;
 	}
 
 	// Create LaserScan message
 	sensor_msgs::msg::LaserScan laserScan;
-	if (syncedTimeReady_){
-		double timeDiff = (int)(iSickTimeStamp - syncedSICKStamp_) * scanCycleTime_;
-		laserScan.header.stamp = syncedROSTime_ + rclcpp::Duration::from_seconds(timeDiff);
+	if (synced_time_ready_){
+		double timeDiff = (int)(iSickTimeStamp - synced_sick_stamp_) * scan_cycle_time_;
+		laserScan.header.stamp = synced_ros_time_ + rclcpp::Duration::from_seconds(timeDiff);
 
 		RCLCPP_DEBUG(this->get_logger(), "Time::now() - calculated sick time stamp = %f",(this->now() - laserScan.header.stamp).seconds());
 	}else{
@@ -210,11 +216,11 @@ void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double
 	}
 
 	// Fill message
-	laserScan.header.frame_id = frameId_;
+	laserScan.header.frame_id = frame_id_;
 	laserScan.angle_increment = vdAngRAD[start_scan + 1] - vdAngRAD[start_scan];
 	laserScan.range_min = 0.001;
 	laserScan.range_max = 29.5; // though the specs state otherwise, the max range reported by the scanner is 29.96m
-	laserScan.time_increment = (scanDuration_) / (vdDistM.size());
+	laserScan.time_increment = (scan_duration_) / (vdDistM.size());
 
 	// Rescale scan
 	num_readings = vdDistM.size();
@@ -229,7 +235,7 @@ void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double
 		// laserScan.header.stamp = rclcpp::Time(laserScan.header.stamp) + rclcpp::Duration::from_seconds(scanDuration_); //adding of the sum over all negative increments would be mathematically correct, but looks worse.
 		laserScan.time_increment = - laserScan.time_increment;
 	}else{
-		laserScan.header.stamp = rclcpp::Time(laserScan.header.stamp) - rclcpp::Duration::from_seconds(scanDuration_); //to be consistent with the omission of the addition above
+		laserScan.header.stamp = rclcpp::Time(laserScan.header.stamp) - rclcpp::Duration::from_seconds(scan_duration_); //to be consistent with the omission of the addition above
 	}
 
 	for (int i = 0; i < (stop_scan - start_scan); i++){
@@ -243,7 +249,7 @@ void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double
 	}
 
 	// Publish Laserscan-message
-	laserScanPub_->publish(laserScan);
+	laser_scan_pub_->publish(laserScan);
 
 	// Diagnostics
 	diagnostic_msgs::msg::DiagnosticArray diagnostics;
@@ -252,7 +258,7 @@ void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double
 	diagnostics.status[0].level = 0;
 	diagnostics.status[0].name = this->get_namespace();
 	diagnostics.status[0].message = "sick scanner running";
-	diagPub_->publish(diagnostics);
+	diag_pub_->publish(diagnostics);
 }
 
 void SickS3002::publishError(std::string error){
@@ -262,7 +268,7 @@ void SickS3002::publishError(std::string error){
 	diagnostics.status[0].level = 2;
 	diagnostics.status[0].name = this->get_namespace();
 	diagnostics.status[0].message = error;
-	diagPub_->publish(diagnostics);
+	diag_pub_->publish(diagnostics);
 }
 
 void SickS3002::publishWarn(std::string warn){
@@ -272,5 +278,5 @@ void SickS3002::publishWarn(std::string warn){
 	diagnostics.status[0].level = 1;
 	diagnostics.status[0].name = this->get_namespace();
 	diagnostics.status[0].message = warn;
-	diagPub_->publish(diagnostics);
+	diag_pub_->publish(diagnostics);
 }
