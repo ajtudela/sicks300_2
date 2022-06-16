@@ -24,3 +24,4 @@ jobs:
         with:
           package-name: sicks300_2
           target-ros2-distro: galactic
+          skip-tests: true
