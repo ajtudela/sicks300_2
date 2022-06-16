@@ -22,5 +22,5 @@ jobs:
       - name: Install dependencies
         uses: ros-tooling/action-ros-ci@v0.2
         with:
-          package-name: simple_laser_geometry
+          package-name: sicks300_2
           target-ros2-distro: galactic
