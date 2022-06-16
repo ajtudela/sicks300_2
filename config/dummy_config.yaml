@@ -6,7 +6,7 @@ laser_front:
     scan_cycle_time: 0.040 # SICK-docu says S300 scans every 40ms
     inverted: false
     scan_id: 7
-    frame_id: /base_laser_link
+    frame_id: base_laser_link
     scan_topic: scan
     fields:
       '1':
@@ -18,12 +18,3 @@ laser_front:
         start_angle: -11.0
         stop_angle: 12.0
     debug: false
-
-scan_filter:
-  ros__parameters:
-    filter1:
-      name: scan_filter
-      type: laser_filters/LaserScanAngularBoundsFilter
-      params:
-        lower_angle: -1.3526
-        upper_angle: 1.361357

@@ -180,8 +180,8 @@ bool SickS3002::receiveScan(){
 	return true;
 }
 
-void SickS3002::publishStandby(bool inStandby){
-	in_standby_.data = inStandby;
+void SickS3002::publishStandby(bool in_standby){
+	in_standby_.data = in_standby;
 	in_standby_pub_->publish(in_standby_);
 }
 

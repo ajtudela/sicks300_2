@@ -1,0 +1,26 @@
+# Simple set of rules for GitHub actions integration with a ROS project
+#
+
+name: Compiling Test
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Setup ROS 2
+        uses: ros-tooling/setup-ros@v0.3
+        with:
+          required-ros-distributions: galactic
+      - name: Install dependencies
+        uses: ros-tooling/action-ros-ci@v0.2
+        with:
+          package-name: simple_laser_geometry
+          target-ros2-distro: galactic

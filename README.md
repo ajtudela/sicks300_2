@@ -1,6 +1,7 @@
 # sicks300_2
 
-![ROS2](https://img.shields.io/badge/ros2-galactic-purple?style=for-the-badge&logo=ros&logoColor=white)
+![ROS2](https://img.shields.io/badge/ros2-galactic-purple?logo=ros&logoColor=white)
+[![Compiling Test](https://github.com/ajtudela/sicks300_2/actions/workflows/compiling_test.yml/badge.svg?branch=dev)](https://github.com/ajtudela/sicks300_2/actions/workflows/compiling_test.yml)
 
 ## Overview
 
