@@ -9,10 +9,6 @@
  *
  */
 
-#include <map>
-
-#include <rcpputils/split.hpp>
-
 #include "sicks300_2/sicks300_2.hpp"
 
 SickS3002::SickS3002(const std::string& name): Node(name, rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true)){
@@ -78,14 +74,16 @@ SickS3002::SickS3002(const std::string& name): Node(name, rclcpp::NodeOptions().
 		this->get_parameter("communication_timeout", communication_timeout_);
 	}
 
-	// TODO: Rework this
-	auto parameters_and_prefixes = list_parameters({"fields"}, 5);
-	if (!parameters_and_prefixes.names.empty()){
+	std::string param_prefix = "fields";
+	auto params_interface = this->get_node_parameters_interface();
+	if (!params_interface->get_parameter_overrides().empty()){
 		// Get the fields numbers
 		std::vector<int> field_numbers;
-		for (const std::string &name : parameters_and_prefixes.names){
-			auto tokens = rcpputils::split(name, '.');
-			field_numbers.push_back(std::stoi(tokens[1]));
+		for (auto i : params_interface->get_parameter_overrides()){
+			if (i.first.find(param_prefix) == 0){
+				auto field_number = i.first.substr(param_prefix.size() + 1, 1);
+				field_numbers.push_back(std::stoi(field_number));
+			}
 		}
 		auto last = std::unique(field_numbers.begin(),field_numbers.end());
 		field_numbers.erase(last, field_numbers.end());

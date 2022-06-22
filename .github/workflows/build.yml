@@ -1,7 +1,7 @@
 # Simple set of rules for GitHub actions integration with a ROS project
 #
 
-name: Compiling Test
+name: Build
 
 on:
   push:
