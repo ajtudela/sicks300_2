@@ -9,6 +9,7 @@
  *
  */
 
+#include "rclcpp/qos.hpp"
 #include "sicks300_2/sicks300_2.hpp"
 
 SickS3002::SickS3002(const std::string& name): Node(name, rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true)){
@@ -132,7 +133,7 @@ SickS3002::SickS3002(const std::string& name): Node(name, rclcpp::NodeOptions().
 	synced_time_ready_ = false;
 
 	// Implementation of topics to publish
-	laser_scan_pub_ = this->create_publisher<sensor_msgs::msg::LaserScan>(scan_topic_, 1);
+	laser_scan_pub_ = this->create_publisher<sensor_msgs::msg::LaserScan>(scan_topic_, rclcpp::SensorDataQoS());
 	in_standby_pub_ = this->create_publisher<std_msgs::msg::Bool>("scan_standby", 1);
 	diag_pub_ = this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>("/diagnostics", 1);
 }
