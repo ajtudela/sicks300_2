@@ -5,6 +5,7 @@ import os
 from ament_index_python import get_package_share_directory
 
 from launch import LaunchDescription
+from launch_ros.actions import LifecycleNode
 from launch_ros.actions import Node
 
 def generate_launch_description():
@@ -16,7 +17,7 @@ def generate_launch_description():
         )
 
     # Start a sicks300_2 node
-    sicks300_2_node = Node(
+    sicks300_2_node = LifecycleNode(
             package = 'sicks300_2',
             namespace = '',
             executable = 'sicks300_2',

@@ -16,33 +16,10 @@
 int main(int argc, char** argv){
 	rclcpp::init(argc, argv);
 
+	rclcpp::executors::SingleThreadedExecutor exe;
 	auto node = std::make_shared<SickS3002>("sicks300_2");
-
-	while (rclcpp::ok()){
-		bool bOpenScan = false;
-		while (!bOpenScan && rclcpp::ok()){
-			RCLCPP_INFO(node->get_logger(), "Opening scanner... (port:%s)", node->getPort().c_str());
-
-			bOpenScan = node->open();
-
-			// Check, if it is the first try to open scanner
-			if (!bOpenScan){
-				RCLCPP_ERROR(node->get_logger(), "...scanner not available on port %s. Will retry every second.", node->getPort().c_str());
-				node->publishError("...scanner not available on port");
-			}
-			sleep(1); // wait for scan to get ready if successfull, or wait befor retrying
-		}
-		RCLCPP_INFO(node->get_logger(), "...scanner opened successfully on port %s", node->getPort().c_str());
-
-		// Main loop
-		while (rclcpp::ok()){
-			// Read scan
-			if (!node->receiveScan()){
-				break;
-			}
-			rclcpp::spin_some(node);
-		}
-	}
+	exe.add_node(node->get_node_base_interface());
+	exe.spin();
 	rclcpp::shutdown();
 	return 0;
 }

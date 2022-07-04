@@ -12,7 +12,21 @@
 #include "rclcpp/qos.hpp"
 #include "sicks300_2/sicks300_2.hpp"
 
-SickS3002::SickS3002(const std::string& name): Node(name, rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true)){
+SickS3002::SickS3002(const std::string& name, bool intra_process_comms) : 
+					rclcpp_lifecycle::LifecycleNode(name, rclcpp::NodeOptions()
+					.use_intra_process_comms(intra_process_comms)
+					.automatically_declare_parameters_from_overrides(true)), 
+					synced_ros_time_(this->now()), 
+					synced_time_ready_(false), 
+					synced_sick_stamp_(0){
+}
+
+SickS3002::~SickS3002(){
+}
+
+rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
+	RCLCPP_INFO(this->get_logger(), "Configuring the node...");
+
 	// Initialize node
 	if (!this->has_parameter(("port"))){
 		RCLCPP_WARN(this->get_logger(), "Used default parameter for port");
@@ -75,6 +89,7 @@ SickS3002::SickS3002(const std::string& name): Node(name, rclcpp::NodeOptions().
 		this->get_parameter("communication_timeout", communication_timeout_);
 	}
 
+	// Read 'fields' param from parameter server
 	std::string param_prefix = "fields";
 	auto params_interface = this->get_node_parameters_interface();
 	if (!params_interface->get_parameter_overrides().empty()){
@@ -128,17 +143,100 @@ SickS3002::SickS3002(const std::string& name): Node(name, rclcpp::NodeOptions().
 		scanner_.setRangeField(1, param);
 	}
 
-	synced_sick_stamp_ = 0;
-	synced_ros_time_ = this->now();
-	synced_time_ready_ = false;
-
-	// Implementation of topics to publish
+	// Configure the publishers
 	laser_scan_pub_ = this->create_publisher<sensor_msgs::msg::LaserScan>(scan_topic_, rclcpp::SensorDataQoS());
 	in_standby_pub_ = this->create_publisher<std_msgs::msg::Bool>("scan_standby", 1);
 	diag_pub_ = this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>("/diagnostics", 1);
+	timer_ = this->create_wall_timer(std::chrono::duration<double>(scan_cycle_time_), std::bind(&SickS3002::receiveScan, this));
+
+	// Open the laser scanner
+	bool bOpenScan = false;
+	while (!bOpenScan && rclcpp::ok()){
+		RCLCPP_INFO(this->get_logger(), "Opening scanner... (port:%s)", this->getPort().c_str());
+		// Try to open the scanner
+		bOpenScan = this->open();
+		// Check, if it is the first try to open scanner
+		if (!bOpenScan){
+			RCLCPP_ERROR(this->get_logger(), "...scanner not available on port %s. Will retry every second.", this->getPort().c_str());
+			this->publishError("...scanner not available on port");
+			// TODO: Return failure instead of loop?
+		}
+		// Wait for scan to get ready if successful, or wait before retrying
+		sleep(1);
+	}
+	RCLCPP_INFO(this->get_logger(), "...scanner opened successfully on port %s", this->getPort().c_str());
+
+	return rclcpp_CallReturn::SUCCESS;
 }
 
-SickS3002::~SickS3002(){
+rclcpp_CallReturn SickS3002::on_activate(const rclcpp_lifecycle::State &){
+	RCLCPP_INFO(this->get_logger(), "Activating the node...");
+
+	// Explicitly activate the lifecycle publishers
+	laser_scan_pub_->on_activate();
+	in_standby_pub_->on_activate();
+	diag_pub_->on_activate();
+
+	return rclcpp_CallReturn::SUCCESS;
+}
+
+rclcpp_CallReturn SickS3002::on_deactivate(const rclcpp_lifecycle::State &){
+	RCLCPP_INFO(this->get_logger(), "Deactivating the node...");
+
+	// Explicitly activate deactivate lifecycle publishers
+	laser_scan_pub_->on_deactivate();
+	in_standby_pub_->on_deactivate();
+	diag_pub_->on_deactivate();
+
+	return rclcpp_CallReturn::SUCCESS;
+}
+
+rclcpp_CallReturn SickS3002::on_cleanup(const rclcpp_lifecycle::State &){
+	RCLCPP_INFO(this->get_logger(), "Cleaning the node...");
+
+	// Release the shared pointers
+	laser_scan_pub_.reset();
+	in_standby_pub_.reset();
+	diag_pub_.reset();
+
+	// Undeclare the parameters
+	this->undeclare_parameter("port");
+	this->undeclare_parameter("baud");
+	this->undeclare_parameter("scan_id");
+	this->undeclare_parameter("inverted");
+	this->undeclare_parameter("frame_id");
+	this->undeclare_parameter("scan_topic");
+	this->undeclare_parameter("scan_duration");
+	this->undeclare_parameter("scan_cycle_time");
+	this->undeclare_parameter("debug");
+	this->undeclare_parameter("communication_timeout");
+	this->undeclare_parameter("fields");
+
+	return rclcpp_CallReturn::SUCCESS;
+}
+
+rclcpp_CallReturn SickS3002::on_shutdown(const rclcpp_lifecycle::State & state){
+	RCLCPP_INFO(this->get_logger(), "Shutdown the node from state %s.", state.label().c_str());
+
+	// Release the shared pointers
+	laser_scan_pub_.reset();
+	in_standby_pub_.reset();
+	diag_pub_.reset();
+
+	// Undeclare the parameters
+	this->undeclare_parameter("port");
+	this->undeclare_parameter("baud");
+	this->undeclare_parameter("scan_id");
+	this->undeclare_parameter("inverted");
+	this->undeclare_parameter("frame_id");
+	this->undeclare_parameter("scan_topic");
+	this->undeclare_parameter("scan_duration");
+	this->undeclare_parameter("scan_cycle_time");
+	this->undeclare_parameter("debug");
+	this->undeclare_parameter("communication_timeout");
+	this->undeclare_parameter("fields");
+
+	return rclcpp_CallReturn::SUCCESS;
 }
 
 bool SickS3002::open(){
