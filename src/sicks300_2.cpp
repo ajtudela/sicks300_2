@@ -152,19 +152,19 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 	// Open the laser scanner
 	bool bOpenScan = false;
 	while (!bOpenScan && rclcpp::ok()){
-		RCLCPP_INFO(this->get_logger(), "Opening scanner... (port:%s)", this->getPort().c_str());
+		RCLCPP_INFO(this->get_logger(), "Opening scanner... (port:%s)", port_.c_str());
 		// Try to open the scanner
 		bOpenScan = this->open();
 		// Check, if it is the first try to open scanner
 		if (!bOpenScan){
-			RCLCPP_ERROR(this->get_logger(), "...scanner not available on port %s. Will retry every second.", this->getPort().c_str());
+			RCLCPP_ERROR(this->get_logger(), "...scanner not available on port %s. Will retry every second.", port_.c_str());
 			this->publishError("...scanner not available on port");
 			// TODO: Return failure instead of loop?
 		}
 		// Wait for scan to get ready if successful, or wait before retrying
 		sleep(1);
 	}
-	RCLCPP_INFO(this->get_logger(), "...scanner opened successfully on port %s", this->getPort().c_str());
+	RCLCPP_INFO(this->get_logger(), "...scanner opened successfully on port %s", port_.c_str());
 
 	return rclcpp_CallReturn::SUCCESS;
 }
@@ -243,10 +243,6 @@ bool SickS3002::open(){
 	return scanner_.open(port_.c_str(), baud_, scan_id_);
 }
 
-std::string SickS3002::getPort(){
-	return port_;
-}
-
 bool SickS3002::receiveScan(){
 	std::vector<double> ranges, rangeAngles, intensities;
 	unsigned int iSickTimeStamp, iSickNow;
@@ -268,7 +264,7 @@ bool SickS3002::receiveScan(){
 	}else{
 		boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - pointTimeCommunicationOK;
 
-		if (diff.total_milliseconds() > static_cast<int>(1000*communication_timeout_)){
+		if (diff.total_milliseconds() > static_cast<int>(1000 * communication_timeout_)){
 			RCLCPP_WARN(this->get_logger(), "Communication timeout");
 			return false;
 		}
@@ -284,10 +280,9 @@ void SickS3002::publishStandby(bool in_standby){
 
 void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double> vdAngRAD, std::vector<double> vdIntensAU, unsigned int iSickTimeStamp, unsigned int iSickNow){
 	// Fill message
-	int start_scan, stop_scan;
+	int start_scan = 0;
 	int num_readings = vdDistM.size(); // initialize with max scan size
-	start_scan = 0;
-	stop_scan = vdDistM.size();
+	int stop_scan = vdDistM.size();
 
 	// Sync handling: find out exact scan time by using the syncTime-syncStamp pair:
 	// Timestamp: "This counter is internally incremented at each scan, i.e. every 40 ms (S300)"
@@ -304,7 +299,7 @@ void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double
 	// Create LaserScan message
 	sensor_msgs::msg::LaserScan laserScan;
 	if (synced_time_ready_){
-		double timeDiff = (int)(iSickTimeStamp - synced_sick_stamp_) * scan_cycle_time_;
+		double timeDiff = static_cast<int>(iSickTimeStamp - synced_sick_stamp_) * scan_cycle_time_;
 		laserScan.header.stamp = synced_ros_time_ + rclcpp::Duration::from_seconds(timeDiff);
 
 		RCLCPP_DEBUG(this->get_logger(), "Time::now() - calculated sick time stamp = %f",(this->now() - laserScan.header.stamp).seconds());
