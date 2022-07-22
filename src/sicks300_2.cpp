@@ -90,10 +90,10 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 	}
 
 	// Read 'fields' param from parameter server
-	std::string param_prefix = "fields";
 	auto params_interface = this->get_node_parameters_interface();
 	if (!params_interface->get_parameter_overrides().empty()){
 		// Get the fields numbers
+		std::string param_prefix = "fields";
 		std::vector<int> field_numbers;
 		for (auto i : params_interface->get_parameter_overrides()){
 			if (i.first.find(param_prefix) == 0){
@@ -104,43 +104,46 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 		auto last = std::unique(field_numbers.begin(),field_numbers.end());
 		field_numbers.erase(last, field_numbers.end());
 
-		// Get the parameters
-		for (const int& field_number : field_numbers){
-			RCLCPP_DEBUG(this->get_logger(), "Found field %d in params", field_number);
+		// If 'fields' parameter exists
+		if (!field_numbers.empty()){
+			// Get the parameters
+			for (const int& field_number : field_numbers){
+				RCLCPP_DEBUG(this->get_logger(), "Found field %d in params", field_number);
 
-			std::string scale_param("fields." + std::to_string(field_number) + ".scale");
-			if (!this->has_parameter(scale_param)){
-				RCLCPP_ERROR(this->get_logger(), "Missing parameter scale");
-				continue;
+				std::string scale_param("fields." + std::to_string(field_number) + ".scale");
+				if (!this->has_parameter(scale_param)){
+					RCLCPP_ERROR(this->get_logger(), "Missing parameter scale");
+					continue;
+				}
+
+				std::string start_angle_param("fields." + std::to_string(field_number) + ".start_angle");
+				if (!this->has_parameter(start_angle_param)){
+					RCLCPP_ERROR(this->get_logger(), "Missing parameter start_angle");
+					continue;
+				}
+
+				std::string stop_angle_param("fields." + std::to_string(field_number) + ".stop_angle");
+				if (!this->has_parameter(stop_angle_param)){
+					RCLCPP_ERROR(this->get_logger(), "Missing parameter stop_angle");
+					continue;
+				}
+
+				ScannerSickS300::ParamType param;
+				param.dScale = get_parameter(scale_param).get_value<double>();
+				param.dStartAngle = get_parameter(start_angle_param).get_value<double>();
+				param.dStopAngle = get_parameter(stop_angle_param).get_value<double>();
+				scanner_.setRangeField(field_number, param);
+
+				RCLCPP_DEBUG(this->get_logger(), "params %f %f %f", param.dScale, param.dStartAngle, param.dStopAngle);
 			}
-
-			std::string start_angle_param("fields." + std::to_string(field_number) + ".start_angle");
-			if (!this->has_parameter(start_angle_param)){
-				RCLCPP_ERROR(this->get_logger(), "Missing parameter start_angle");
-				continue;
-			}
-
-			std::string stop_angle_param("fields." + std::to_string(field_number) + ".stop_angle");
-			if (!this->has_parameter(stop_angle_param)){
-				RCLCPP_ERROR(this->get_logger(), "Missing parameter stop_angle");
-				continue;
-			}
-
+		}else{
+			// Setting defaults to be backwards compatible
 			ScannerSickS300::ParamType param;
-			param.dScale = get_parameter(scale_param).get_value<double>();
-			param.dStartAngle = get_parameter(start_angle_param).get_value<double>();
-			param.dStopAngle = get_parameter(stop_angle_param).get_value<double>();
-			scanner_.setRangeField(field_number, param);
-
-			RCLCPP_DEBUG(this->get_logger(), "params %f %f %f", param.dScale, param.dStartAngle, param.dStopAngle);
+			param.dScale = 0.01;
+			param.dStartAngle = -135.0 / 180.0 * M_PI;
+			param.dStopAngle = 135.0 / 180.0 * M_PI;
+			scanner_.setRangeField(1, param);
 		}
-	}else{
-		// Setting defaults to be backwards compatible
-		ScannerSickS300::ParamType param;
-		param.dScale = 0.01;
-		param.dStartAngle = -135.0 / 180.0 * M_PI;
-		param.dStopAngle = 135.0 / 180.0 * M_PI;
-		scanner_.setRangeField(1, param);
 	}
 
 	// Configure the publishers
