@@ -90,10 +90,10 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 	}
 
 	// Read 'fields' param from parameter server
-	std::string param_prefix = "fields";
 	auto params_interface = this->get_node_parameters_interface();
 	if (!params_interface->get_parameter_overrides().empty()){
 		// Get the fields numbers
+		std::string param_prefix = "fields";
 		std::vector<int> field_numbers;
 		for (auto i : params_interface->get_parameter_overrides()){
 			if (i.first.find(param_prefix) == 0){
@@ -104,43 +104,46 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 		auto last = std::unique(field_numbers.begin(),field_numbers.end());
 		field_numbers.erase(last, field_numbers.end());
 
-		// Get the parameters
-		for (const int& field_number : field_numbers){
-			RCLCPP_DEBUG(this->get_logger(), "Found field %d in params", field_number);
+		// If 'fields' parameter exists
+		if (!field_numbers.empty()){
+			// Get the parameters
+			for (const int& field_number : field_numbers){
+				RCLCPP_DEBUG(this->get_logger(), "Found field %d in params", field_number);
 
-			std::string scale_param("fields." + std::to_string(field_number) + ".scale");
-			if (!this->has_parameter(scale_param)){
-				RCLCPP_ERROR(this->get_logger(), "Missing parameter scale");
-				continue;
+				std::string scale_param("fields." + std::to_string(field_number) + ".scale");
+				if (!this->has_parameter(scale_param)){
+					RCLCPP_ERROR(this->get_logger(), "Missing parameter scale");
+					continue;
+				}
+
+				std::string start_angle_param("fields." + std::to_string(field_number) + ".start_angle");
+				if (!this->has_parameter(start_angle_param)){
+					RCLCPP_ERROR(this->get_logger(), "Missing parameter start_angle");
+					continue;
+				}
+
+				std::string stop_angle_param("fields." + std::to_string(field_number) + ".stop_angle");
+				if (!this->has_parameter(stop_angle_param)){
+					RCLCPP_ERROR(this->get_logger(), "Missing parameter stop_angle");
+					continue;
+				}
+
+				ScannerSickS300::ParamType param;
+				param.dScale = get_parameter(scale_param).get_value<double>();
+				param.dStartAngle = get_parameter(start_angle_param).get_value<double>();
+				param.dStopAngle = get_parameter(stop_angle_param).get_value<double>();
+				scanner_.setRangeField(field_number, param);
+
+				RCLCPP_DEBUG(this->get_logger(), "params %f %f %f", param.dScale, param.dStartAngle, param.dStopAngle);
 			}
-
-			std::string start_angle_param("fields." + std::to_string(field_number) + ".start_angle");
-			if (!this->has_parameter(start_angle_param)){
-				RCLCPP_ERROR(this->get_logger(), "Missing parameter start_angle");
-				continue;
-			}
-
-			std::string stop_angle_param("fields." + std::to_string(field_number) + ".stop_angle");
-			if (!this->has_parameter(stop_angle_param)){
-				RCLCPP_ERROR(this->get_logger(), "Missing parameter stop_angle");
-				continue;
-			}
-
+		}else{
+			// Setting defaults to be backwards compatible
 			ScannerSickS300::ParamType param;
-			param.dScale = get_parameter(scale_param).get_value<double>();
-			param.dStartAngle = get_parameter(start_angle_param).get_value<double>();
-			param.dStopAngle = get_parameter(stop_angle_param).get_value<double>();
-			scanner_.setRangeField(field_number, param);
-
-			RCLCPP_DEBUG(this->get_logger(), "params %f %f %f", param.dScale, param.dStartAngle, param.dStopAngle);
+			param.dScale = 0.01;
+			param.dStartAngle = -135.0 / 180.0 * M_PI;
+			param.dStopAngle = 135.0 / 180.0 * M_PI;
+			scanner_.setRangeField(1, param);
 		}
-	}else{
-		// Setting defaults to be backwards compatible
-		ScannerSickS300::ParamType param;
-		param.dScale = 0.01;
-		param.dStartAngle = -135.0 / 180.0 * M_PI;
-		param.dStopAngle = 135.0 / 180.0 * M_PI;
-		scanner_.setRangeField(1, param);
 	}
 
 	// Configure the publishers
@@ -152,19 +155,19 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 	// Open the laser scanner
 	bool bOpenScan = false;
 	while (!bOpenScan && rclcpp::ok()){
-		RCLCPP_INFO(this->get_logger(), "Opening scanner... (port:%s)", this->getPort().c_str());
+		RCLCPP_INFO(this->get_logger(), "Opening scanner... (port:%s)", port_.c_str());
 		// Try to open the scanner
 		bOpenScan = this->open();
 		// Check, if it is the first try to open scanner
 		if (!bOpenScan){
-			RCLCPP_ERROR(this->get_logger(), "...scanner not available on port %s. Will retry every second.", this->getPort().c_str());
+			RCLCPP_ERROR(this->get_logger(), "...scanner not available on port %s. Will retry every second.", port_.c_str());
 			this->publishError("...scanner not available on port");
 			// TODO: Return failure instead of loop?
 		}
 		// Wait for scan to get ready if successful, or wait before retrying
 		sleep(1);
 	}
-	RCLCPP_INFO(this->get_logger(), "...scanner opened successfully on port %s", this->getPort().c_str());
+	RCLCPP_INFO(this->get_logger(), "...scanner opened successfully on port %s", port_.c_str());
 
 	return rclcpp_CallReturn::SUCCESS;
 }
@@ -243,10 +246,6 @@ bool SickS3002::open(){
 	return scanner_.open(port_.c_str(), baud_, scan_id_);
 }
 
-std::string SickS3002::getPort(){
-	return port_;
-}
-
 bool SickS3002::receiveScan(){
 	std::vector<double> ranges, rangeAngles, intensities;
 	unsigned int iSickTimeStamp, iSickNow;
@@ -268,7 +267,7 @@ bool SickS3002::receiveScan(){
 	}else{
 		boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - pointTimeCommunicationOK;
 
-		if (diff.total_milliseconds() > static_cast<int>(1000*communication_timeout_)){
+		if (diff.total_milliseconds() > static_cast<int>(1000 * communication_timeout_)){
 			RCLCPP_WARN(this->get_logger(), "Communication timeout");
 			return false;
 		}
@@ -284,10 +283,9 @@ void SickS3002::publishStandby(bool in_standby){
 
 void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double> vdAngRAD, std::vector<double> vdIntensAU, unsigned int iSickTimeStamp, unsigned int iSickNow){
 	// Fill message
-	int start_scan, stop_scan;
+	int start_scan = 0;
 	int num_readings = vdDistM.size(); // initialize with max scan size
-	start_scan = 0;
-	stop_scan = vdDistM.size();
+	int stop_scan = vdDistM.size();
 
 	// Sync handling: find out exact scan time by using the syncTime-syncStamp pair:
 	// Timestamp: "This counter is internally incremented at each scan, i.e. every 40 ms (S300)"
@@ -304,7 +302,7 @@ void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double
 	// Create LaserScan message
 	sensor_msgs::msg::LaserScan laserScan;
 	if (synced_time_ready_){
-		double timeDiff = (int)(iSickTimeStamp - synced_sick_stamp_) * scan_cycle_time_;
+		double timeDiff = static_cast<int>(iSickTimeStamp - synced_sick_stamp_) * scan_cycle_time_;
 		laserScan.header.stamp = synced_ros_time_ + rclcpp::Duration::from_seconds(timeDiff);
 
 		RCLCPP_DEBUG(this->get_logger(), "Time::now() - calculated sick time stamp = %f",(this->now() - laserScan.header.stamp).seconds());

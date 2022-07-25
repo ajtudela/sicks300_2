@@ -61,7 +61,6 @@ class SickS3002: public rclcpp_lifecycle::LifecycleNode{
 		rclcpp::TimerBase::SharedPtr timer_;
 
 		bool open();
-		std::string getPort();
 		bool receiveScan();
 		void publishStandby(bool in_standby);
 		void publishLaserScan(std::vector<double> vdDistM, std::vector<double> vdAngRAD, 

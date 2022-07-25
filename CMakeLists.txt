@@ -69,6 +69,10 @@ install(DIRECTORY config
   DESTINATION share/${PROJECT_NAME}
 )
 
+install(PROGRAMS scripts/find_minimums.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 #############
 ## Testing ##
 #############
