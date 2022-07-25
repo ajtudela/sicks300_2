@@ -2,19 +2,20 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
 	<name>sicks300_2</name>
-	<version>0.7.12</version>
+	<version>1.0.0</version>
 	<description>This package published a laser scan message out of a Sick S300 laser scanner.</description>
 	<maintainer email="ajtudela@gmail.com">Alberto Tudela</maintainer>
 	<license>Apache 2.0</license>
 	<author email="ajtudela@gmail.com">Alberto Tudela</author>
 	<author email="fmw@ipa.fhg.de">Florian Weisshardt</author>
 	<buildtool_depend>ament_cmake</buildtool_depend>
-	<depend>rclcpp</depend>
+	<depend>rclcpp_lifecycle</depend>
 	<depend>std_msgs</depend>
 	<depend>sensor_msgs</depend>
 	<depend>diagnostic_msgs</depend>
 	<depend>boost</depend>
 	<exec_depend>ros2launch</exec_depend>
+	<exec_depend>laser_filters</exec_depend>
 	<test_depend>ament_lint_auto</test_depend>
 	<test_depend>ament_lint_common</test_depend>
 	<export>

@@ -14,7 +14,7 @@ endif()
 ################################################
 ## Find ament macros and libraries
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(diagnostic_msgs REQUIRED)
@@ -39,7 +39,7 @@ add_executable(${PROJECT_NAME}
   src/${PROJECT_NAME}_node.cpp
 )
 ament_target_dependencies(${PROJECT_NAME}
-  rclcpp
+  rclcpp_lifecycle
   std_msgs
   sensor_msgs
   diagnostic_msgs
@@ -57,7 +57,7 @@ install(TARGETS ${PROJECT_NAME}
 
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION include/${PROJECT_NAME}
-  FILES_MATCHING PATTERN "*.h"
+  FILES_MATCHING PATTERN "*.hpp"
 #   PATTERN ".svn" EXCLUDE
 )
 
@@ -67,6 +67,10 @@ install(DIRECTORY launch
 
 install(DIRECTORY config
   DESTINATION share/${PROJECT_NAME}
+)
+
+install(PROGRAMS scripts/find_minimums.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 #############
