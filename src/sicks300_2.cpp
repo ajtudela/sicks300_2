@@ -201,6 +201,7 @@ rclcpp_CallReturn SickS3002::on_cleanup(const rclcpp_lifecycle::State &){
 	laser_scan_pub_.reset();
 	in_standby_pub_.reset();
 	diag_pub_.reset();
+	timer_.reset();
 
 	// Undeclare the parameters
 	this->undeclare_parameter("port");
@@ -225,6 +226,7 @@ rclcpp_CallReturn SickS3002::on_shutdown(const rclcpp_lifecycle::State & state){
 	laser_scan_pub_.reset();
 	in_standby_pub_.reset();
 	diag_pub_.reset();
+	timer_.reset();
 
 	// Undeclare the parameters
 	this->undeclare_parameter("port");
@@ -259,8 +261,12 @@ bool SickS3002::receiveScan(){
 			RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 30, "scanner on port %s in standby", port_.c_str());
 			publishStandby(true);
 		}else{
-			publishStandby(false);
-			publishLaserScan(ranges, rangeAngles, intensities, iSickTimeStamp, iSickNow);
+			// Only publish if the publisher is activated
+			// Prevent warnings
+			if (laser_scan_pub_->is_activated()){
+				publishStandby(false);
+				publishLaserScan(ranges, rangeAngles, intensities, iSickTimeStamp, iSickNow);
+			}
 		}
 
 		pointTimeCommunicationOK = boost::posix_time::microsec_clock::local_time();
