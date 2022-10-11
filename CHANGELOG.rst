@@ -6,6 +6,7 @@ Changelog for package sicks300_2
 ------------------
 * Update parameters declarations.
 * Fix timer when transition from states.
+* Rename dummy_launch.py to scan_with_filter.py.
 
 1.0.0 (25-07-2022)
 -------------------

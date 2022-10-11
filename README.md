@@ -5,7 +5,7 @@
 
 ## Overview
 
-This package implements a driver for the Sick S300 Safety laser scanners with an interface for ROS 2. 
+This package implements a driver for the Sick S300 Safety laser scanners with an interface for ROS 2 using a lifecycle node.
 It provides an implementation for both, the old (1.40) and the new (2.10) protocol.
 Thus, the old Sick S300 Professional CMS as well as the new Sick S300 Expert are supported.
 
@@ -15,7 +15,7 @@ However, it does not cover the full functionality of the protocol:
 - It does not handle I/O-data or reflector data
 (though it reads the reflector marker field in the distance measurements)
 
-**Keywords:** ROS2, laser, driver, sick s300
+**Keywords:** ROS2, laser, driver, sick s300, lifecycle
 
 The sicks300_2 package has been tested under [ROS2] Galactic on [Ubuntu] 20.04. This code is mainly based on [cob_sick_s300](http://wiki.ros.org/cob_sick_s300) but ported to ROS2; expect that it changes often and any fitness for a particular purpose is disclaimed.
 
@@ -57,6 +57,10 @@ To build from source, clone the latest version from this repository into your co
 Run the sicks300_2 node with:
 
 	ros2 run sicks300_2 sicks300_2
+
+Optionally, you can launch this node with an angulor bound filter:
+
+	ros2 launch sicks300_2 scan_with_filter.py 
 
 ## Nodes
 
