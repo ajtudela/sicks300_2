@@ -14,12 +14,6 @@
 
 // C++
 #include <string>
-#include <chrono>
-
-// BOOST
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread/thread.hpp>
-
 // ROS
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "rclcpp_lifecycle/lifecycle_publisher.hpp"
@@ -30,8 +24,6 @@
 
 // Common
 #include "common/ScannerSickS300.h"
-
-using namespace std::chrono_literals;
 
 typedef rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn rclcpp_CallReturn;
 
