@@ -9,6 +9,10 @@
  *
  */
 
+// C++
+#include <chrono>
+#include <thread>
+
 #include "rclcpp/qos.hpp"
 #include "sicks300_2/sicks300_2.hpp"
 
@@ -21,6 +25,10 @@ SickS3002::SickS3002(const std::string& name, bool intra_process_comms) :
 }
 
 SickS3002::~SickS3002(){
+	if (timer_) {
+		timer_->cancel();
+		timer_.reset();
+	}
 }
 
 rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
@@ -114,30 +122,25 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 	laser_scan_pub_ = this->create_publisher<sensor_msgs::msg::LaserScan>(scan_topic_, rclcpp::SensorDataQoS());
 	in_standby_pub_ = this->create_publisher<std_msgs::msg::Bool>("scan_standby", 1);
 	diag_pub_ = this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>("/diagnostics", 1);
-	timer_ = this->create_wall_timer(std::chrono::duration<double>(scan_cycle_time_), std::bind(&SickS3002::receiveScan, this));
 
 	// Open the laser scanner
-	bool bOpenScan = false;
-	while (!bOpenScan && rclcpp::ok()){
-		RCLCPP_INFO(this->get_logger(), "Opening scanner... (port:%s)", port_.c_str());
-		// Try to open the scanner
-		bOpenScan = this->open();
-		// Check, if it is the first try to open scanner
-		if (!bOpenScan){
-			RCLCPP_ERROR(this->get_logger(), "...scanner not available on port %s. Will retry every second.", port_.c_str());
-			this->publishError("...scanner not available on port");
-			// TODO: Return failure instead of loop?
-		}
-		// Wait for scan to get ready if successful, or wait before retrying
-		sleep(1);
+	bool bOpenScan = this->open();
+	if (!bOpenScan){
+		RCLCPP_ERROR(this->get_logger(), "...scanner not available on port %s. Please, try again.", port_.c_str());
+		return rclcpp_CallReturn::FAILURE;
+	}else{
+		// Wait for scan to get ready if successful
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		RCLCPP_INFO(this->get_logger(), "...scanner opened successfully on port %s", port_.c_str());
+		
+		return rclcpp_CallReturn::SUCCESS;
 	}
-	RCLCPP_INFO(this->get_logger(), "...scanner opened successfully on port %s", port_.c_str());
-
-	return rclcpp_CallReturn::SUCCESS;
 }
 
 rclcpp_CallReturn SickS3002::on_activate(const rclcpp_lifecycle::State &){
 	RCLCPP_INFO(this->get_logger(), "Activating the node...");
+
+	timer_ = this->create_wall_timer(std::chrono::duration<double>(scan_cycle_time_), std::bind(&SickS3002::receiveScan, this));
 
 	// Explicitly activate the lifecycle publishers
 	laser_scan_pub_->on_activate();
@@ -150,7 +153,12 @@ rclcpp_CallReturn SickS3002::on_activate(const rclcpp_lifecycle::State &){
 rclcpp_CallReturn SickS3002::on_deactivate(const rclcpp_lifecycle::State &){
 	RCLCPP_INFO(this->get_logger(), "Deactivating the node...");
 
-	// Explicitly activate deactivate lifecycle publishers
+	if (timer_) {
+		timer_->cancel();
+		timer_.reset();
+	}
+
+	// Explicitly deactivate lifecycle publishers
 	laser_scan_pub_->on_deactivate();
 	in_standby_pub_->on_deactivate();
 	diag_pub_->on_deactivate();
@@ -225,12 +233,8 @@ bool SickS3002::receiveScan(){
 			RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 30, "scanner on port %s in standby", port_.c_str());
 			publishStandby(true);
 		}else{
-			// Only publish if the publisher is activated
-			// Prevent warnings
-			if (laser_scan_pub_->is_activated()){
-				publishStandby(false);
-				publishLaserScan(ranges, rangeAngles, intensities, iSickTimeStamp, iSickNow);
-			}
+			publishStandby(false);
+			publishLaserScan(ranges, rangeAngles, intensities, iSickTimeStamp, iSickNow);
 		}
 
 		pointTimeCommunicationOK = boost::posix_time::microsec_clock::local_time();

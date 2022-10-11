@@ -5,6 +5,7 @@ Changelog for package sicks300_2
 1.1.0 (11-10-2022)
 ------------------
 * Update parameters declarations.
+* Fix timer when transition from states.
 
 1.0.0 (25-07-2022)
 -------------------
