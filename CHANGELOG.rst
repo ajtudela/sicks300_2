@@ -2,6 +2,12 @@
 Changelog for package sicks300_2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.0 (11-10-2022)
+------------------
+* Update parameters declarations.
+* Fix timer when transition from states.
+* Rename dummy_launch.py to scan_with_filter.py.
+
 1.0.0 (25-07-2022)
 -------------------
 * From cob_driver version 0.7.12.
