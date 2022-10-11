@@ -14,8 +14,7 @@
 
 SickS3002::SickS3002(const std::string& name, bool intra_process_comms) : 
 					rclcpp_lifecycle::LifecycleNode(name, rclcpp::NodeOptions()
-					.use_intra_process_comms(intra_process_comms)
-					.automatically_declare_parameters_from_overrides(true)), 
+					.use_intra_process_comms(intra_process_comms)), 
 					synced_ros_time_(this->now()), 
 					synced_time_ready_(false), 
 					synced_sick_stamp_(0){
@@ -27,124 +26,89 @@ SickS3002::~SickS3002(){
 rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 	RCLCPP_INFO(this->get_logger(), "Configuring the node...");
 
-	// Initialize node
-	if (!this->has_parameter(("port"))){
-		RCLCPP_WARN(this->get_logger(), "Used default parameter for port");
-		port_ = this->declare_parameter("port", std::string("/dev/ttyUSB0"));
-	}else{
-		this->get_parameter("port", port_);
-	}
-	if (!this->has_parameter(("baud"))){
-		RCLCPP_WARN(this->get_logger(), "Used default parameter for baud");
-		baud_ = this->declare_parameter("baud", 500000);
-	}else{
-		this->get_parameter("baud", baud_);
-	}
-	if (!this->has_parameter(("scan_id"))){
-		RCLCPP_WARN(this->get_logger(), "Used default parameter for scan_id");
-		scan_id_ = this->declare_parameter("scan_id", 7);
-	}else{
-		this->get_parameter("scan_id", scan_id_);
-	}
-	if (!this->has_parameter(("inverted"))){
-		RCLCPP_WARN(this->get_logger(), "Used default parameter for inverted");
-		inverted_ = this->declare_parameter("inverted", false);
-	}else{
-		this->get_parameter("inverted", inverted_);
-	}
-	if (!this->has_parameter(("frame_id"))){
-		RCLCPP_WARN(this->get_logger(), "Used default parameter for frame_id");
-		frame_id_ = this->declare_parameter("frame_id", std::string("base_laser_link"));
-	}else{
-		this->get_parameter("frame_id", frame_id_);
-	}
-	if (!this->has_parameter(("scan_topic"))){
-		RCLCPP_WARN(this->get_logger(), "Used default parameter for scan_topic");
-		scan_topic_ = this->declare_parameter("scan_topic", std::string("scan"));
-	}else{
-		this->get_parameter("scan_topic", scan_topic_);
-	}
-	if (!this->has_parameter(("scan_duration"))){
-		RCLCPP_WARN(this->get_logger(), "Used default parameter for scan_duration");
-		scan_duration_ = this->declare_parameter("scan_duration", 0.025); //no info about that in SICK-docu, but 0.025 is believable and looks good in rviz
-	}else{
-		this->get_parameter("scan_duration", scan_duration_);
-	}
-	if (!this->has_parameter(("scan_cycle_time"))){
-		RCLCPP_WARN(this->get_logger(), "Used default parameter for scan_cycle_time");
-		scan_cycle_time_ = this->declare_parameter("scan_cycle_time", 0.040); //SICK-docu says S300 scans every 40ms
-	}else{
-		this->get_parameter("scan_cycle_time", scan_cycle_time_);
-	}
-	if (!this->has_parameter(("debug"))){
-		RCLCPP_WARN(this->get_logger(), "Used default parameter for debug");
-		debug_ = this->declare_parameter("debug", false);
-	}else{
-		this->get_parameter("debug", debug_);
-	}
-	if (!this->has_parameter(("communication_timeout"))){
-		RCLCPP_WARN(this->get_logger(), "Used default parameter for communication_timeout");
-		communication_timeout_ = this->declare_parameter("communication_timeout", 0.2);
-	}else{
-		this->get_parameter("communication_timeout", communication_timeout_);
-	}
+	// Declare and read parameters
+	this->declare_parameter("port", rclcpp::ParameterValue("/dev/ttyUSB0"), 
+							rcl_interfaces::msg::ParameterDescriptor()
+							.set__description("USB port of the scanner"));
+	this->get_parameter("port", port_);
+	RCLCPP_INFO(this->get_logger(), "The parameter port is set to: %s", port_.c_str());
 
-	// Read 'fields' param from parameter server
-	auto params_interface = this->get_node_parameters_interface();
-	if (!params_interface->get_parameter_overrides().empty()){
-		// Get the fields numbers
-		std::string param_prefix = "fields";
-		std::vector<int> field_numbers;
-		for (auto i : params_interface->get_parameter_overrides()){
-			if (i.first.find(param_prefix) == 0){
-				auto field_number = i.first.substr(param_prefix.size() + 1, 1);
-				field_numbers.push_back(std::stoi(field_number));
-			}
-		}
-		auto last = std::unique(field_numbers.begin(),field_numbers.end());
-		field_numbers.erase(last, field_numbers.end());
+	this->declare_parameter("baud", rclcpp::ParameterValue(500000), 
+							rcl_interfaces::msg::ParameterDescriptor()
+							.set__description("Baudrate to communicate with the laser scanner"));
+	this->get_parameter("baud", baud_);
+	RCLCPP_INFO(this->get_logger(), "The parameter baud is set to: %i", baud_);
 
-		// If 'fields' parameter exists
-		if (!field_numbers.empty()){
-			// Get the parameters
-			for (const int& field_number : field_numbers){
-				RCLCPP_DEBUG(this->get_logger(), "Found field %d in params", field_number);
+	this->declare_parameter("scan_id", rclcpp::ParameterValue(7), 
+							rcl_interfaces::msg::ParameterDescriptor()
+							.set__description("Identifier of the scanner"));
+	this->get_parameter("scan_id", scan_id_);
+	RCLCPP_INFO(this->get_logger(), "The parameter scan_id is set to: %i", scan_id_);
 
-				std::string scale_param("fields." + std::to_string(field_number) + ".scale");
-				if (!this->has_parameter(scale_param)){
-					RCLCPP_ERROR(this->get_logger(), "Missing parameter scale");
-					continue;
-				}
+	this->declare_parameter("inverted", rclcpp::ParameterValue(false), 
+							rcl_interfaces::msg::ParameterDescriptor()
+							.set__description("Option to invert the direction of the measurements"));
+	this->get_parameter("inverted", inverted_);
+	RCLCPP_INFO(this->get_logger(), "The parameter inverted is set to: %s", inverted_ ? "true" : "false");
 
-				std::string start_angle_param("fields." + std::to_string(field_number) + ".start_angle");
-				if (!this->has_parameter(start_angle_param)){
-					RCLCPP_ERROR(this->get_logger(), "Missing parameter start_angle");
-					continue;
-				}
+	this->declare_parameter("scan_topic", rclcpp::ParameterValue("scan"), 
+							rcl_interfaces::msg::ParameterDescriptor()
+							.set__description("The topic where the laser scan will be published"));
+	this->get_parameter("scan_topic", scan_topic_);
+	RCLCPP_INFO(this->get_logger(), "The parameter scan_topic is set to: %s", scan_topic_.c_str());
 
-				std::string stop_angle_param("fields." + std::to_string(field_number) + ".stop_angle");
-				if (!this->has_parameter(stop_angle_param)){
-					RCLCPP_ERROR(this->get_logger(), "Missing parameter stop_angle");
-					continue;
-				}
+	this->declare_parameter("frame_id", rclcpp::ParameterValue("base_laser_link"), 
+							rcl_interfaces::msg::ParameterDescriptor()
+							.set__description("The frame of the scanner"));
+	this->get_parameter("frame_id", frame_id_);
+	RCLCPP_INFO(this->get_logger(), "The parameter frame_id is set to: %s", frame_id_.c_str());
 
-				ScannerSickS300::ParamType param;
-				param.dScale = get_parameter(scale_param).get_value<double>();
-				param.dStartAngle = get_parameter(start_angle_param).get_value<double>();
-				param.dStopAngle = get_parameter(stop_angle_param).get_value<double>();
-				scanner_.setRangeField(field_number, param);
+	this->declare_parameter("scan_duration", rclcpp::ParameterValue(0.025), 
+							rcl_interfaces::msg::ParameterDescriptor()
+							.set__description("Time between laser scans"));
+	this->get_parameter("scan_duration", scan_duration_);
+	RCLCPP_INFO(this->get_logger(), "The parameter scan_duration is set to: %f", scan_duration_);
 
-				RCLCPP_DEBUG(this->get_logger(), "params %f %f %f", param.dScale, param.dStartAngle, param.dStopAngle);
-			}
-		}else{
-			// Setting defaults to be backwards compatible
-			ScannerSickS300::ParamType param;
-			param.dScale = 0.01;
-			param.dStartAngle = -135.0 / 180.0 * M_PI;
-			param.dStopAngle = 135.0 / 180.0 * M_PI;
-			scanner_.setRangeField(1, param);
-		}
-	}
+	this->declare_parameter("scan_cycle_time", rclcpp::ParameterValue(0.040), 
+							rcl_interfaces::msg::ParameterDescriptor()
+							.set__description("Cycle time of the scan"));
+	this->get_parameter("scan_cycle_time", scan_cycle_time_);
+	RCLCPP_INFO(this->get_logger(), "The parameter scan_cycle_time is set to: %f", scan_cycle_time_);
+
+	this->declare_parameter("debug", rclcpp::ParameterValue(false), 
+							rcl_interfaces::msg::ParameterDescriptor()
+							.set__description("Option to toggle scanner debugging information"));
+	this->get_parameter("debug", debug_);
+	RCLCPP_INFO(this->get_logger(), "The parameter debug is set to: %s", debug_ ? "true" : "false");
+
+	this->declare_parameter("communication_timeout", rclcpp::ParameterValue(0.2), 
+							rcl_interfaces::msg::ParameterDescriptor()
+							.set__description("Timeout to shutdown the node"));
+	this->get_parameter("communication_timeout", communication_timeout_);
+	RCLCPP_INFO(this->get_logger(), "The parameter communication_timeout is set to: %f", communication_timeout_);
+
+	// Read 'fields' params. Set 1 by default to be backwards compatible
+	// TODO: Change this when ROS will support YAML mixed types
+	ScannerSickS300::ParamType param;
+	param.range_field = 1;
+	this->declare_parameter("fields.1.scale", rclcpp::ParameterValue(0.01), 
+							rcl_interfaces::msg::ParameterDescriptor()
+							.set__description("Scale of the field"));
+	this->get_parameter("fields.1.scale", param.dScale);
+	RCLCPP_INFO(this->get_logger(), "The parameter field.1.scale is set to: %f", param.dScale);
+
+	this->declare_parameter("fields.1.start_angle", rclcpp::ParameterValue(-135.0 / 180.0 * M_PI), 
+							rcl_interfaces::msg::ParameterDescriptor()
+							.set__description("Start angle of the field"));
+	this->get_parameter("fields.1.start_angle", param.dStartAngle);
+	RCLCPP_INFO(this->get_logger(), "The parameter field.1.start_angle is set to: %f", param.dStartAngle);
+
+	this->declare_parameter("fields.1.stop_angle", rclcpp::ParameterValue(135.0 / 180.0 * M_PI), 
+							rcl_interfaces::msg::ParameterDescriptor()
+							.set__description("Stop angle of the field"));
+	this->get_parameter("fields.1.stop_angle", param.dStopAngle);
+	RCLCPP_INFO(this->get_logger(), "The parameter field.1.stop_angle is set to: %f", param.dStopAngle);
+	scanner_.setRangeField(1, param);
 
 	// Configure the publishers
 	laser_scan_pub_ = this->create_publisher<sensor_msgs::msg::LaserScan>(scan_topic_, rclcpp::SensorDataQoS());

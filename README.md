@@ -90,7 +90,7 @@ Driver for the Sick S300 Safety laser scanners.
 
 * **`scan_id`** (int, default: 7)
 
-	Identifer of the scanner.
+	Identifier of the scanner.
 
 * **`inverted`** (bool, default: false)
 
@@ -102,7 +102,7 @@ Driver for the Sick S300 Safety laser scanners.
 
 * **`frame_id`** (string, default: "base_laser_link")
 
-	The frame identifier of the scanner.
+	The frame of the scanner.
 
 * **`scan_duration`** (double, default: 0.025)
 
@@ -119,6 +119,10 @@ Driver for the Sick S300 Safety laser scanners.
 * **`communication_timeout`** (double, default: 0.2)
 
 	Timeout to shutdown the node.
+
+* **`fields`**
+
+	Range configuration of the field. Set 1 by default.
 
 [Ubuntu]: https://ubuntu.com/
 [ROS2]: https://docs.ros.org/en/galactic/
