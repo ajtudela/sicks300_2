@@ -89,7 +89,7 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 	this->get_parameter("scan_cycle_time", scan_cycle_time_);
 	RCLCPP_INFO(this->get_logger(), "The parameter scan_cycle_time is set to: %f", scan_cycle_time_);
 
-	this->declare_parameter("debug", rclcpp::ParameterValue(false), 
+	declare_parameter_if_not_declared("debug", rclcpp::ParameterValue(false), 
 							rcl_interfaces::msg::ParameterDescriptor()
 							.set__description("Option to toggle scanner debugging information"));
 	this->get_parameter("debug", debug_);
