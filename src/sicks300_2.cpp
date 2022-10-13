@@ -181,19 +181,6 @@ rclcpp_CallReturn SickS3002::on_cleanup(const rclcpp_lifecycle::State &){
 	diag_pub_.reset();
 	timer_.reset();
 
-	// Undeclare the parameters
-	this->undeclare_parameter("port");
-	this->undeclare_parameter("baud");
-	this->undeclare_parameter("scan_id");
-	this->undeclare_parameter("inverted");
-	this->undeclare_parameter("frame_id");
-	this->undeclare_parameter("scan_topic");
-	this->undeclare_parameter("scan_duration");
-	this->undeclare_parameter("scan_cycle_time");
-	this->undeclare_parameter("debug");
-	this->undeclare_parameter("communication_timeout");
-	this->undeclare_parameter("fields");
-
 	return rclcpp_CallReturn::SUCCESS;
 }
 
@@ -205,19 +192,6 @@ rclcpp_CallReturn SickS3002::on_shutdown(const rclcpp_lifecycle::State & state){
 	in_standby_pub_.reset();
 	diag_pub_.reset();
 	timer_.reset();
-
-	// Undeclare the parameters
-	this->undeclare_parameter("port");
-	this->undeclare_parameter("baud");
-	this->undeclare_parameter("scan_id");
-	this->undeclare_parameter("inverted");
-	this->undeclare_parameter("frame_id");
-	this->undeclare_parameter("scan_topic");
-	this->undeclare_parameter("scan_duration");
-	this->undeclare_parameter("scan_cycle_time");
-	this->undeclare_parameter("debug");
-	this->undeclare_parameter("communication_timeout");
-	this->undeclare_parameter("fields");
 
 	return rclcpp_CallReturn::SUCCESS;
 }
