@@ -13,6 +13,12 @@
 #include <chrono>
 #include <thread>
 
+// BOOST
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/thread/thread.hpp>
+
+using namespace std::chrono_literals;
+
 #include "rclcpp/qos.hpp"
 #include "sicks300_2/sicks300_2.hpp"
 
@@ -35,49 +41,49 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 	RCLCPP_INFO(this->get_logger(), "Configuring the node...");
 
 	// Declare and read parameters
-	this->declare_parameter("port", rclcpp::ParameterValue("/dev/ttyUSB0"), 
+	declare_parameter_if_not_declared("port", rclcpp::ParameterValue("/dev/ttyUSB0"), 
 							rcl_interfaces::msg::ParameterDescriptor()
 							.set__description("USB port of the scanner"));
 	this->get_parameter("port", port_);
 	RCLCPP_INFO(this->get_logger(), "The parameter port is set to: %s", port_.c_str());
 
-	this->declare_parameter("baud", rclcpp::ParameterValue(500000), 
+	declare_parameter_if_not_declared("baud", rclcpp::ParameterValue(500000), 
 							rcl_interfaces::msg::ParameterDescriptor()
 							.set__description("Baudrate to communicate with the laser scanner"));
 	this->get_parameter("baud", baud_);
 	RCLCPP_INFO(this->get_logger(), "The parameter baud is set to: %i", baud_);
 
-	this->declare_parameter("scan_id", rclcpp::ParameterValue(7), 
+	declare_parameter_if_not_declared("scan_id", rclcpp::ParameterValue(7), 
 							rcl_interfaces::msg::ParameterDescriptor()
 							.set__description("Identifier of the scanner"));
 	this->get_parameter("scan_id", scan_id_);
 	RCLCPP_INFO(this->get_logger(), "The parameter scan_id is set to: %i", scan_id_);
 
-	this->declare_parameter("inverted", rclcpp::ParameterValue(false), 
+	declare_parameter_if_not_declared("inverted", rclcpp::ParameterValue(false), 
 							rcl_interfaces::msg::ParameterDescriptor()
 							.set__description("Option to invert the direction of the measurements"));
 	this->get_parameter("inverted", inverted_);
 	RCLCPP_INFO(this->get_logger(), "The parameter inverted is set to: %s", inverted_ ? "true" : "false");
 
-	this->declare_parameter("scan_topic", rclcpp::ParameterValue("scan"), 
+	declare_parameter_if_not_declared("scan_topic", rclcpp::ParameterValue("scan"), 
 							rcl_interfaces::msg::ParameterDescriptor()
 							.set__description("The topic where the laser scan will be published"));
 	this->get_parameter("scan_topic", scan_topic_);
 	RCLCPP_INFO(this->get_logger(), "The parameter scan_topic is set to: %s", scan_topic_.c_str());
 
-	this->declare_parameter("frame_id", rclcpp::ParameterValue("base_laser_link"), 
+	declare_parameter_if_not_declared("frame_id", rclcpp::ParameterValue("base_laser_link"), 
 							rcl_interfaces::msg::ParameterDescriptor()
 							.set__description("The frame of the scanner"));
 	this->get_parameter("frame_id", frame_id_);
 	RCLCPP_INFO(this->get_logger(), "The parameter frame_id is set to: %s", frame_id_.c_str());
 
-	this->declare_parameter("scan_duration", rclcpp::ParameterValue(0.025), 
+	declare_parameter_if_not_declared("scan_duration", rclcpp::ParameterValue(0.025), 
 							rcl_interfaces::msg::ParameterDescriptor()
 							.set__description("Time between laser scans"));
 	this->get_parameter("scan_duration", scan_duration_);
 	RCLCPP_INFO(this->get_logger(), "The parameter scan_duration is set to: %f", scan_duration_);
 
-	this->declare_parameter("scan_cycle_time", rclcpp::ParameterValue(0.040), 
+	declare_parameter_if_not_declared("scan_cycle_time", rclcpp::ParameterValue(0.040), 
 							rcl_interfaces::msg::ParameterDescriptor()
 							.set__description("Cycle time of the scan"));
 	this->get_parameter("scan_cycle_time", scan_cycle_time_);
@@ -89,7 +95,7 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 	this->get_parameter("debug", debug_);
 	RCLCPP_INFO(this->get_logger(), "The parameter debug is set to: %s", debug_ ? "true" : "false");
 
-	this->declare_parameter("communication_timeout", rclcpp::ParameterValue(0.2), 
+	declare_parameter_if_not_declared("communication_timeout", rclcpp::ParameterValue(0.2), 
 							rcl_interfaces::msg::ParameterDescriptor()
 							.set__description("Timeout to shutdown the node"));
 	this->get_parameter("communication_timeout", communication_timeout_);
@@ -99,19 +105,19 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 	// TODO: Change this when ROS will support YAML mixed types
 	ScannerSickS300::ParamType param;
 	param.range_field = 1;
-	this->declare_parameter("fields.1.scale", rclcpp::ParameterValue(0.01), 
+	declare_parameter_if_not_declared("fields.1.scale", rclcpp::ParameterValue(0.01), 
 							rcl_interfaces::msg::ParameterDescriptor()
 							.set__description("Scale of the field"));
 	this->get_parameter("fields.1.scale", param.dScale);
 	RCLCPP_INFO(this->get_logger(), "The parameter field.1.scale is set to: %f", param.dScale);
 
-	this->declare_parameter("fields.1.start_angle", rclcpp::ParameterValue(-135.0 / 180.0 * M_PI), 
+	declare_parameter_if_not_declared("fields.1.start_angle", rclcpp::ParameterValue(-135.0 / 180.0 * M_PI), 
 							rcl_interfaces::msg::ParameterDescriptor()
 							.set__description("Start angle of the field"));
 	this->get_parameter("fields.1.start_angle", param.dStartAngle);
 	RCLCPP_INFO(this->get_logger(), "The parameter field.1.start_angle is set to: %f", param.dStartAngle);
 
-	this->declare_parameter("fields.1.stop_angle", rclcpp::ParameterValue(135.0 / 180.0 * M_PI), 
+	declare_parameter_if_not_declared("fields.1.stop_angle", rclcpp::ParameterValue(135.0 / 180.0 * M_PI), 
 							rcl_interfaces::msg::ParameterDescriptor()
 							.set__description("Stop angle of the field"));
 	this->get_parameter("fields.1.stop_angle", param.dStopAngle);
@@ -348,4 +354,13 @@ void SickS3002::publishWarn(std::string warn){
 	diagnostics.status[0].name = this->get_namespace();
 	diagnostics.status[0].message = warn;
 	diag_pub_->publish(diagnostics);
+}
+
+void SickS3002::declare_parameter_if_not_declared(const std::string & param_name, 
+	const rclcpp::ParameterValue & default_value, 
+	const rcl_interfaces::msg::ParameterDescriptor & param_descriptor){
+
+	if (!this->has_parameter(param_name)){
+		this->declare_parameter(param_name, default_value, param_descriptor);
+	}
 }

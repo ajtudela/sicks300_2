@@ -14,13 +14,9 @@
 
 // C++
 #include <string>
-#include <chrono>
-
-// BOOST
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread/thread.hpp>
 
 // ROS
+#include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "rclcpp_lifecycle/lifecycle_publisher.hpp"
 #include "lifecycle_msgs/msg/transition.hpp"
@@ -30,8 +26,6 @@
 
 // Common
 #include "common/ScannerSickS300.h"
-
-using namespace std::chrono_literals;
 
 typedef rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn rclcpp_CallReturn;
 
@@ -68,5 +62,10 @@ class SickS3002: public rclcpp_lifecycle::LifecycleNode{
 							unsigned int iSickNow);
 		void publishError(std::string error);
 		void publishWarn(std::string warn);
+
+		void declare_parameter_if_not_declared(const std::string & param_name, 
+												const rclcpp::ParameterValue & default_value, 
+												const rcl_interfaces::msg::ParameterDescriptor & param_descriptor =
+														rcl_interfaces::msg::ParameterDescriptor());
 };
 #endif
