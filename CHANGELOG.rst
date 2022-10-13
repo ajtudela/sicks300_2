@@ -8,6 +8,7 @@ Changelog for package sicks300_2
 * Check if parameters have been declared.
 * Fix timer when transition from states.
 * Rename dummy_launch.py to scan_with_filter.py.
+* Remove undeclare the parameters.
 
 1.0.0 (25-07-2022)
 -------------------
