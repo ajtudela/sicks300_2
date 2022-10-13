@@ -62,5 +62,10 @@ class SickS3002: public rclcpp_lifecycle::LifecycleNode{
 							unsigned int iSickNow);
 		void publishError(std::string error);
 		void publishWarn(std::string warn);
+
+		void declare_parameter_if_not_declared(const std::string & param_name, 
+												const rclcpp::ParameterValue & default_value, 
+												const rcl_interfaces::msg::ParameterDescriptor & param_descriptor =
+														rcl_interfaces::msg::ParameterDescriptor());
 };
 #endif
