@@ -60,7 +60,7 @@ Run the sicks300_2 node with:
 
 Optionally, you can launch this node with an angulor bound filter:
 
-	ros2 launch sicks300_2 scan_with_filter.py 
+	ros2 launch sicks300_2 scan_with_filter.launch.py
 
 ## Nodes
 

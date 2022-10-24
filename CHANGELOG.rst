@@ -2,6 +2,10 @@
 Changelog for package sicks300_2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.1 (24-10-2022)
+------------------
+* Update launch file with arguments.
+
 1.1.0 (11-10-2022)
 ------------------
 * Update parameters declarations.
