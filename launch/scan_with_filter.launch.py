@@ -24,7 +24,7 @@ def generate_launch_description():
     sicks300_dir = get_package_share_directory('sicks300_2')
 
     # Read the YAML parameters file.
-    default_sicks300_param_file = os.path.join(sicks300_dir, 'config', 'dummy_config.yaml')
+    default_sicks300_param_file = os.path.join(sicks300_dir, 'params', 'default.yaml')
 
     # Create the launch configuration variables.
     sicks300_param_file = LaunchConfiguration('sicks300_param_file', default=default_sicks300_param_file)
