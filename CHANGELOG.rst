@@ -2,10 +2,11 @@
 Changelog for package sicks300_2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.1.1 (25-10-2022)
+1.1.1 (26-10-2022)
 ------------------
 * Update launch file with arguments.
 * Rename folder from config to params.
+* Update publishers QoS.
 
 1.1.0 (11-10-2022)
 ------------------
