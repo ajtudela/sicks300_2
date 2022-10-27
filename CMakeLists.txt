@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.8)
 project(sicks300_2)
 
-# Default to C++14
+# Default to C++17
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -19,9 +19,6 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(diagnostic_msgs REQUIRED)
 
-## Find system libraries
-find_package(Boost REQUIRED COMPONENTS date_time thread)
-
 ###########
 ## Build ##
 ###########
@@ -29,7 +26,6 @@ find_package(Boost REQUIRED COMPONENTS date_time thread)
 ## Your package locations should be listed before other locations
 include_directories(
   include
-  ${Boost_INCLUDE_DIRS}
 )
 
 add_executable(${PROJECT_NAME}
