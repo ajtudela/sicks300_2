@@ -2,6 +2,10 @@
 Changelog for package sicks300_2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.2 (27-10-2022)
+------------------
+* Update find_minimums script with QoS.
+
 1.1.1 (26-10-2022)
 ------------------
 * Update launch file with arguments.
