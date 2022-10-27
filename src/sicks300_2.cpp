@@ -13,14 +13,12 @@
 #include <chrono>
 #include <thread>
 
-// BOOST
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread/thread.hpp>
+// ROS
+#include "rclcpp/qos.hpp"
+
+#include "sicks300_2/sicks300_2.hpp"
 
 using namespace std::chrono_literals;
-
-#include "rclcpp/qos.hpp"
-#include "sicks300_2/sicks300_2.hpp"
 
 SickS3002::SickS3002(const std::string& name, bool intra_process_comms) : 
 					rclcpp_lifecycle::LifecycleNode(name, rclcpp::NodeOptions()
@@ -205,7 +203,7 @@ bool SickS3002::receiveScan(){
 	unsigned int iSickTimeStamp, iSickNow;
 
 	int result = scanner_.getScan(ranges, rangeAngles, intensities, iSickTimeStamp, iSickNow, debug_);
-	static boost::posix_time::ptime pointTimeCommunicationOK = boost::posix_time::microsec_clock::local_time();
+	static rclcpp::Time pointTimeCommunicationOK(this->now());
 
 	if (result){
 		if (scanner_.isInStandby()){
@@ -217,11 +215,11 @@ bool SickS3002::receiveScan(){
 			publishLaserScan(ranges, rangeAngles, intensities, iSickTimeStamp, iSickNow);
 		}
 
-		pointTimeCommunicationOK = boost::posix_time::microsec_clock::local_time();
+		pointTimeCommunicationOK = this->now();
 	}else{
-		boost::posix_time::time_duration diff = boost::posix_time::microsec_clock::local_time() - pointTimeCommunicationOK;
+		rclcpp::Duration diff(this->now() - pointTimeCommunicationOK);
 
-		if (diff.total_milliseconds() > static_cast<int>(1000 * communication_timeout_)){
+		if (diff.seconds() > communication_timeout_){
 			RCLCPP_WARN(this->get_logger(), "Communication timeout");
 			return false;
 		}
