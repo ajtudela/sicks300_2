@@ -11,15 +11,16 @@
 
 // ROS includes
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp/qos.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
 
 class ScanFilter: public rclcpp::Node{
 	public:
 		ScanFilter(): Node("scan_filter"), lower_angle_(-2.05), upper_angle_(2.22){
 			// Create publisher and subscriber
-			laser_scan_sub_ = this->create_subscription<sensor_msgs::msg::LaserScan>("scan", 10, 
+			laser_scan_sub_ = this->create_subscription<sensor_msgs::msg::LaserScan>("scan", rclcpp::SensorDataQoS(), 
 								std::bind(&ScanFilter::scan_callback, this, std::placeholders::_1));
-			laser_scan_filtered_pub_ = this->create_publisher<sensor_msgs::msg::LaserScan>("scan_filtered", 10);
+			laser_scan_filtered_pub_ = this->create_publisher<sensor_msgs::msg::LaserScan>("scan_filtered", rclcpp::SensorDataQoS());
 		}
 
 	private:
