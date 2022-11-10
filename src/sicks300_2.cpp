@@ -302,7 +302,7 @@ void SickS3002::publishLaserScan(std::vector<double> vdDistM, std::vector<double
 	diagnostic_msgs::msg::DiagnosticArray diagnostics;
 	diagnostics.header.stamp = this->now();
 	diagnostics.status.resize(1);
-	diagnostics.status[0].level = 0;
+	diagnostics.status[0].level = diagnostic_msgs::msg::DiagnosticStatus::OK;
 	diagnostics.status[0].name = this->get_namespace();
 	diagnostics.status[0].message = "sick scanner running";
 	diag_pub_->publish(diagnostics);
@@ -312,7 +312,7 @@ void SickS3002::publishError(std::string error){
 	diagnostic_msgs::msg::DiagnosticArray diagnostics;
 	diagnostics.header.stamp = this->now();
 	diagnostics.status.resize(1);
-	diagnostics.status[0].level = 2;
+	diagnostics.status[0].level = diagnostic_msgs::msg::DiagnosticStatus::ERROR;
 	diagnostics.status[0].name = this->get_namespace();
 	diagnostics.status[0].message = error;
 	diag_pub_->publish(diagnostics);
@@ -322,7 +322,7 @@ void SickS3002::publishWarn(std::string warn){
 	diagnostic_msgs::msg::DiagnosticArray diagnostics;
 	diagnostics.header.stamp = this->now();
 	diagnostics.status.resize(1);
-	diagnostics.status[0].level = 1;
+	diagnostics.status[0].level = diagnostic_msgs::msg::DiagnosticStatus::WARN;
 	diagnostics.status[0].name = this->get_namespace();
 	diagnostics.status[0].message = warn;
 	diag_pub_->publish(diagnostics);
