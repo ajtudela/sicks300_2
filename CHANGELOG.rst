@@ -2,6 +2,11 @@
 Changelog for package sicks300_2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.1 (24-11-2022)
+------------------
+* Replace diagnostic messages with enums.
+* Replace declare_parameter_if_not_declared with the one inside nav2_util.
+
 1.2.0 (27-10-2022)
 ------------------
 * Update find_minimums script with QoS.
