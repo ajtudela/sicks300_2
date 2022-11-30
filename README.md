@@ -1,6 +1,6 @@
 # sicks300_2
 
-![ROS2](https://img.shields.io/badge/ros2-galactic-purple?logo=ros&logoColor=white)
+![ROS2](https://img.shields.io/badge/ros2-humble-blue?logo=ros&logoColor=white)
 [![Build](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml/badge.svg?branch=dev)](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml)
 
 ## Overview
@@ -17,7 +17,7 @@ However, it does not cover the full functionality of the protocol:
 
 **Keywords:** ROS2, laser, driver, sick s300, lifecycle
 
-The sicks300_2 package has been tested under [ROS2] Galactic on [Ubuntu] 20.04. This code is mainly based on [cob_sick_s300](http://wiki.ros.org/cob_sick_s300) but ported to ROS2; expect that it changes often and any fitness for a particular purpose is disclaimed.
+The sicks300_2 package has been tested under [ROS2] Humble on [Ubuntu] 22.04. This code is mainly based on [cob_sick_s300](http://wiki.ros.org/cob_sick_s300) but ported to ROS2; expect that it changes often and any fitness for a particular purpose is disclaimed.
 
 ## S300 Configuration
 Here are a few notes about how to best configure the S300:
@@ -37,10 +37,8 @@ Here are a few notes about how to best configure the S300:
 
 #### Dependencies
 
-- [Robot Operating System (ROS) 2](https://docs.ros.org/en/galactic/) (middleware for robotics),
+- [Robot Operating System (ROS) 2](https://docs.ros.org/en/humble/) (middleware for robotics),
 - [Boost](https://www.boost.org/) (C++ source libraries)
-
-		rosdep install -i --from-path src --rosdistro galactic -y
 
 #### Building
 
@@ -49,7 +47,7 @@ To build from source, clone the latest version from this repository into your co
 	cd colcon_workspace/src
 	git clone https://github.com/ajtudela/sicks300_2.git
 	cd ../
-	rosdep install -i --from-path src --rosdistro galactic -y
+	rosdep install -i --from-path src --rosdistro humble -y
 	colcon build
 
 ## Usage
@@ -129,7 +127,7 @@ Driver for the Sick S300 Safety laser scanners.
 	Range configuration of the field. Set 1 by default.
 
 [Ubuntu]: https://ubuntu.com/
-[ROS2]: https://docs.ros.org/en/galactic/
-[sensor_msgs/LaserScan]: https://docs.ros2.org/galactic/api/sensor_msgs/msg/LaserScan.html
-[std_msgs/Bool]: https://docs.ros2.org/galactic/api/std_msgs/msg/Bool.html
-[diagnostic_msgs/DiagnosticArray]: https://docs.ros2.org/galactic/api/diagnostic_msgs/msg/DiagnosticArray.html
+[ROS2]: https://docs.ros.org/en/humble/
+[sensor_msgs/LaserScan]: https://docs.ros2.org/humble/api/sensor_msgs/msg/LaserScan.html
+[std_msgs/Bool]: https://docs.ros2.org/humble/api/std_msgs/msg/Bool.html
+[diagnostic_msgs/DiagnosticArray]: https://docs.ros2.org/humble/api/diagnostic_msgs/msg/DiagnosticArray.html

@@ -2,6 +2,10 @@
 Changelog for package sicks300_2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.2 (28-11-2022)
+------------------
+* Add LICENSE file.
+
 1.2.1 (24-11-2022)
 ------------------
 * Replace diagnostic messages with enums.
