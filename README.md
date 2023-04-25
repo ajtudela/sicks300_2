@@ -60,7 +60,7 @@ Run the sicks300_2 node with:
 
 Optionally, you can launch this node with an angulor bound filter:
 
-	ros2 launch sicks300_2 scan_with_filter.py 
+	ros2 launch sicks300_2 scan_with_filter.launch.py
 
 ## Nodes
 
@@ -110,11 +110,11 @@ Driver for the Sick S300 Safety laser scanners.
 
 * **`scan_duration`** (double, default: 0.025)
 
-	Time between laser scans.
+	Time between laser scans in seconds.
 
-* **`scan_cycle_time`** (double, default: 0.040))
+* **`scan_cycle_time`** (double, default: 0.040)
 
-	Cycle time of the scan. Documentation says S300 scans every 40ms.
+	Cycle time of the scan in seconds. Documentation says S300 scans every 40ms.
 
 * **`debug`** (bool, default: false)
 
@@ -122,7 +122,7 @@ Driver for the Sick S300 Safety laser scanners.
 
 * **`communication_timeout`** (double, default: 0.2)
 
-	Timeout to shutdown the node.
+	Timeout to shutdown the node in seconds.
 
 * **`fields`**
 

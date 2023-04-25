@@ -2,7 +2,7 @@
 
 import rclpy
 from rclpy.node import Node
-
+from rclpy.qos import qos_profile_sensor_data
 from  sensor_msgs.msg import LaserScan
 
 
@@ -10,7 +10,7 @@ class FindMinimus(Node):
 
     def __init__(self, min_val_):
         super().__init__('minimus_finder')
-        self.subscription = self.create_subscription( LaserScan, 'scan_filtered', self.listener_callback, 10)
+        self.subscription = self.create_subscription( LaserScan, 'scan_filtered', self.listener_callback, qos_profile_sensor_data)
         self.min_val = min_val_
 
 

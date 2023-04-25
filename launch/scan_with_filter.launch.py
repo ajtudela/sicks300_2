@@ -1,13 +1,17 @@
-# Dummy launch
+#!/usr/bin/env python3
 
+'''
+    Launches a Sick S300 laser scanner node and a filter node.
+'''
 import os
 
 from ament_index_python import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import RegisterEventHandler, EmitEvent
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler, EmitEvent
 from launch_ros.actions import LifecycleNode
 from launch_ros.actions import Node
+from launch.substitutions import LaunchConfiguration
 from launch_ros.event_handlers import OnStateTransition
 from launch_ros.events.lifecycle import ChangeState
 
@@ -15,12 +19,22 @@ import launch.events
 import lifecycle_msgs.msg
 
 def generate_launch_description():
+
+    # Default filenames and where to find them
+    sicks300_dir = get_package_share_directory('sicks300_2')
+
     # Read the YAML parameters file.
-    config = os.path.join(
-        get_package_share_directory('sicks300_2'),
-        'config',
-        'dummy_config.yaml'
-        )
+    default_sicks300_param_file = os.path.join(sicks300_dir, 'params', 'default.yaml')
+
+    # Create the launch configuration variables.
+    sicks300_param_file = LaunchConfiguration('sicks300_param_file', default=default_sicks300_param_file)
+
+    # Map these variables to arguments: can be set from the command line or a default will be used
+    sicks300_param_file_launch_arg = DeclareLaunchArgument(
+        'sicks300_param_file',
+        default_value=default_sicks300_param_file,
+        description='Full path to the Sicks300 parameter file to use'
+    )
 
     # Prepare the sicks300_2 node.
     sicks300_2_node = LifecycleNode(
@@ -28,7 +42,7 @@ def generate_launch_description():
             namespace = '',
             executable = 'sicks300_2',
             name = 'laser_front',
-            parameters = [config],
+            parameters = [sicks300_param_file],
             emulate_tty = True
         )
 
@@ -38,7 +52,7 @@ def generate_launch_description():
             namespace = '',
             executable = 'scan_to_scan_filter_chain',
             name = 'scan_filter',
-            parameters = [config],
+            parameters = [sicks300_param_file],
             emulate_tty = True
         )
 
@@ -76,6 +90,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        sicks300_param_file_launch_arg,
         register_event_handler_for_sick_reaches_inactive_state,
         register_event_handler_for_sick_reaches_active_state,
         sicks300_2_node,
