@@ -1,7 +1,7 @@
 /*
  * SICK S300 2 ROS NODE
  *
- * Copyright (c) 2022 Alberto José Tudela Roldán <ajtudela@gmail.com>
+ * Copyright (c) 2022-2023 Alberto José Tudela Roldán <ajtudela@gmail.com>
  * 
  * This file is part of sicks300_2 project.
  * 
@@ -142,31 +142,23 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 	}
 }
 
-rclcpp_CallReturn SickS3002::on_activate(const rclcpp_lifecycle::State &){
+rclcpp_CallReturn SickS3002::on_activate(const rclcpp_lifecycle::State & state){
+	LifecycleNode::on_activate(state);
 	RCLCPP_INFO(this->get_logger(), "Activating the node...");
 
 	timer_ = this->create_wall_timer(std::chrono::duration<double>(scan_cycle_time_), std::bind(&SickS3002::receiveScan, this));
 
-	// Explicitly activate the lifecycle publishers
-	laser_scan_pub_->on_activate();
-	in_standby_pub_->on_activate();
-	diag_pub_->on_activate();
-
 	return rclcpp_CallReturn::SUCCESS;
 }
 
-rclcpp_CallReturn SickS3002::on_deactivate(const rclcpp_lifecycle::State &){
+rclcpp_CallReturn SickS3002::on_deactivate(const rclcpp_lifecycle::State & state){
+	LifecycleNode::on_deactivate(state);
 	RCLCPP_INFO(this->get_logger(), "Deactivating the node...");
 
 	if (timer_) {
 		timer_->cancel();
 		timer_.reset();
 	}
-
-	// Explicitly deactivate lifecycle publishers
-	laser_scan_pub_->on_deactivate();
-	in_standby_pub_->on_deactivate();
-	diag_pub_->on_deactivate();
 
 	return rclcpp_CallReturn::SUCCESS;
 }

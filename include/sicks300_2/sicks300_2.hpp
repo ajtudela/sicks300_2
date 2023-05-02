@@ -1,7 +1,7 @@
 /*
  * SICK S300 2 ROS NODE
  *
- * Copyright (c) 2022 Alberto José Tudela Roldán <ajtudela@gmail.com>
+ * Copyright (c) 2022-2023 Alberto José Tudela Roldán <ajtudela@gmail.com>
  * 
  * This file is part of sicks300_2 project.
  * 
@@ -34,8 +34,8 @@ class SickS3002: public rclcpp_lifecycle::LifecycleNode{
 		SickS3002(const std::string& name, bool intra_process_comms = false);
 		~SickS3002();
 		rclcpp_CallReturn on_configure(const rclcpp_lifecycle::State &);
-		rclcpp_CallReturn on_activate(const rclcpp_lifecycle::State &);
-		rclcpp_CallReturn on_deactivate(const rclcpp_lifecycle::State &);
+		rclcpp_CallReturn on_activate(const rclcpp_lifecycle::State & state);
+		rclcpp_CallReturn on_deactivate(const rclcpp_lifecycle::State & state);
 		rclcpp_CallReturn on_cleanup(const rclcpp_lifecycle::State &);
 		rclcpp_CallReturn on_shutdown(const rclcpp_lifecycle::State & state);
 

@@ -2,6 +2,10 @@
 Changelog for package sicks300_2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.3 (02-05-2023)
+------------------
+* Update on_activate and on_deactivate methods of the publishers: https://docs.ros.org/en/humble/Releases/Release-Humble-Hawksbill.html#rclcpp-lifecycle
+
 1.2.2 (28-11-2022)
 ------------------
 * Add LICENSE file.
