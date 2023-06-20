@@ -21,3 +21,13 @@ scan_filter:
   ros__parameters:
     lower_angle: -2.05
     upper_angle: 2.22
+
+# Filter the laserscan behind the robot using laser_filters
+#scan_filter:
+#  ros__parameters:
+#    filter1:
+#      name: inside
+#      type: laser_filters/LaserScanAngularBoundsFilter
+#      params:
+#        lower_angle: -2.05
+#        upper_angle: 2.22
