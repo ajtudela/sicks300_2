@@ -19,14 +19,14 @@ class ScanFilter: public rclcpp::Node{
 	public:
 		ScanFilter(): Node("scan_filter"){
 			nav2_util::declare_parameter_if_not_declared(this, "lower_angle", 
-				rclcpp::ParameterValue(0), rcl_interfaces::msg::ParameterDescriptor()
+				rclcpp::ParameterValue(0.0), rcl_interfaces::msg::ParameterDescriptor()
 						.set__description("The angle of the scan to begin filtering at"));
 			this->get_parameter("lower_angle", lower_angle_);
 			RCLCPP_INFO(this->get_logger(), 
 				"The parameter lower_angle is set to: %f", lower_angle_);
 			
 			nav2_util::declare_parameter_if_not_declared(this, "upper_angle", 
-				rclcpp::ParameterValue(0), rcl_interfaces::msg::ParameterDescriptor()
+				rclcpp::ParameterValue(0.0), rcl_interfaces::msg::ParameterDescriptor()
 						.set__description("The angle of the scan to end filtering at"));
 			this->get_parameter("upper_angle", upper_angle_);
 			RCLCPP_INFO(this->get_logger(), 
