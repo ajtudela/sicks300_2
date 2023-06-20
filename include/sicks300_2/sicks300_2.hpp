@@ -50,7 +50,7 @@ class SickS3002: public rclcpp_lifecycle::LifecycleNode{
 		int baud_, scan_id_;
 		bool inverted_, debug_, synced_time_ready_;
 		unsigned int synced_sick_stamp_;
-		double scan_duration_, scan_cycle_time_, communication_timeout_;
+		double scan_duration_, scan_cycle_time_, scan_delay_, communication_timeout_;
 		ScannerSickS300 scanner_;
 		rclcpp::TimerBase::SharedPtr timer_;
 

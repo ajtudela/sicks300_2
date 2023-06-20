@@ -114,6 +114,10 @@ Driver for the Sick S300 Safety laser scanners.
 
 	Cycle time of the scan in seconds. Documentation says S300 scans every 40ms.
 
+* **`scan_delay`** (double, default: 0.075)
+
+	Delay between the start of the scan and the first measurement in seconds.
+
 * **`debug`** (bool, default: false)
 
 	Option to toggle scanner debugging information.

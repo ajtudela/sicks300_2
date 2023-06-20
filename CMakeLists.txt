@@ -33,7 +33,7 @@ add_executable(${PROJECT_NAME}
   src/common/ScannerSickS300.cpp
   src/common/SerialIO.cpp
   src/sicks300_2.cpp
-  src/${PROJECT_NAME}_node.cpp
+  src/main.cpp
 )
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp_lifecycle
