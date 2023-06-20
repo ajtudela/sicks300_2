@@ -1,7 +1,7 @@
 /*
  * SCAN FILTER ROS NODE
  *
- * Copyright (c) 2022 Alberto José Tudela Roldán <ajtudela@gmail.com>
+ * Copyright (c) 2022-2023 Alberto José Tudela Roldán <ajtudela@gmail.com>
  * 
  * This file is part of sicks300_2 project.
  * 
@@ -12,15 +12,33 @@
 // ROS includes
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
+#include "nav2_util/node_utils.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
 
 class ScanFilter: public rclcpp::Node{
 	public:
-		ScanFilter(): Node("scan_filter"), lower_angle_(-2.05), upper_angle_(2.22){
+		ScanFilter(): Node("scan_filter"){
+			nav2_util::declare_parameter_if_not_declared(this, "lower_angle", 
+				rclcpp::ParameterValue(0), rcl_interfaces::msg::ParameterDescriptor()
+						.set__description("The angle of the scan to begin filtering at"));
+			this->get_parameter("lower_angle", lower_angle_);
+			RCLCPP_INFO(this->get_logger(), 
+				"The parameter lower_angle is set to: %f", lower_angle_);
+			
+			nav2_util::declare_parameter_if_not_declared(this, "upper_angle", 
+				rclcpp::ParameterValue(0), rcl_interfaces::msg::ParameterDescriptor()
+						.set__description("The angle of the scan to end filtering at"));
+			this->get_parameter("upper_angle", upper_angle_);
+			RCLCPP_INFO(this->get_logger(), 
+				"The parameter upper_angle is set to: %f", upper_angle_);
+
+
 			// Create publisher and subscriber
-			laser_scan_sub_ = this->create_subscription<sensor_msgs::msg::LaserScan>("scan", rclcpp::SensorDataQoS(), 
-								std::bind(&ScanFilter::scan_callback, this, std::placeholders::_1));
-			laser_scan_filtered_pub_ = this->create_publisher<sensor_msgs::msg::LaserScan>("scan_filtered", rclcpp::SensorDataQoS());
+			laser_scan_sub_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
+				"scan", rclcpp::SensorDataQoS(), 
+				std::bind(&ScanFilter::scan_callback, this, std::placeholders::_1));
+			laser_scan_filtered_pub_ = this->create_publisher<sensor_msgs::msg::LaserScan>(
+				"scan_filtered", rclcpp::SensorDataQoS());
 		}
 
 	private:
@@ -56,7 +74,8 @@ class ScanFilter: public rclcpp::Node{
 					}
 					count++;
 
-					// Check if we need to break out of the loop, basically if the next increment will put us over the threshold
+					// Check if we need to break out of the loop, 
+					// basically if the next increment will put us over the threshold
 					if (current_angle + msg.angle_increment > upper_angle_){
 						break;
 					}

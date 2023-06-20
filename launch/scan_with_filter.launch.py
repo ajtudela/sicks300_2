@@ -38,23 +38,23 @@ def generate_launch_description():
 
     # Prepare the sicks300_2 node.
     sicks300_2_node = LifecycleNode(
-            package = 'sicks300_2',
-            namespace = '',
-            executable = 'sicks300_2',
-            name = 'laser_front',
-            parameters = [sicks300_param_file],
-            emulate_tty = True
-        )
+        package = 'sicks300_2',
+        namespace = '',
+        executable = 'sicks300_2',
+        name = 'laser_front',
+        parameters = [sicks300_param_file],
+        emulate_tty = True
+    )
 
     # Prepare the filter node.
     filter_node = Node(
-            package = 'laser_filters',
-            namespace = '',
-            executable = 'scan_to_scan_filter_chain',
-            name = 'scan_filter',
-            parameters = [sicks300_param_file],
-            emulate_tty = True
-        )
+        package = 'sicks300_2',
+        namespace = '',
+        executable = 'scan_filter',
+        name = 'scan_filter',
+        parameters = [sicks300_param_file],
+        emulate_tty = True
+    )
 
     # When the sick node reaches the 'inactive' state, make it take the 'activate' transition.
     register_event_handler_for_sick_reaches_inactive_state = RegisterEventHandler(
