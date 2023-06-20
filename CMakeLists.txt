@@ -48,6 +48,7 @@ add_executable(scan_filter src/scan_filter.cpp)
 ament_target_dependencies(scan_filter
   rclcpp
   sensor_msgs
+  nav2_util
 )
 target_link_libraries(scan_filter)
 
