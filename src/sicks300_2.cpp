@@ -154,7 +154,7 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 	laser_scan_pub_ = this->create_publisher<sensor_msgs::msg::LaserScan>(
 		scan_topic_, rclcpp::SensorDataQoS());
 	in_standby_pub_ = this->create_publisher<std_msgs::msg::Bool>(
-		"scan_standby", rclcpp::QoS(1).transient_local());
+		scan_topic_ + "/standby", rclcpp::QoS(1).transient_local());
 	diag_pub_ = this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>(
 		"/diagnostics", rclcpp::QoS(1));
 

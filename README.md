@@ -72,7 +72,7 @@ Driver for the Sick S300 Safety laser scanners.
 
 	The laserscan data.
 
-* **`scan_standby`** ([std_msgs/Bool])
+* **`scan/standby`** ([std_msgs/Bool])
 
 	True if the scanner is in standby mode, false otherwise.
 
