@@ -33,7 +33,7 @@ add_executable(${PROJECT_NAME}
   src/common/ScannerSickS300.cpp
   src/common/SerialIO.cpp
   src/sicks300_2.cpp
-  src/${PROJECT_NAME}_node.cpp
+  src/main.cpp
 )
 ament_target_dependencies(${PROJECT_NAME}
   rclcpp_lifecycle
@@ -44,10 +44,18 @@ ament_target_dependencies(${PROJECT_NAME}
 )
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 
+add_executable(scan_filter src/scan_filter.cpp)
+ament_target_dependencies(scan_filter
+  rclcpp
+  sensor_msgs
+  nav2_util
+)
+target_link_libraries(scan_filter)
+
 #############
 ## Install ##
 #############
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME} scan_filter
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}

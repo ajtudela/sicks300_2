@@ -2,6 +2,16 @@
 Changelog for package sicks300_2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.0 (20-06-2023)
+------------------
+* Added scan_filter node.
+* Added logging info in launch file.
+* Added scan delay parameter.
+
+1.2.3 (02-05-2023)
+------------------
+* Update on_activate and on_deactivate methods of the publishers: https://docs.ros.org/en/humble/Releases/Release-Humble-Hawksbill.html#rclcpp-lifecycle
+
 1.2.2 (28-11-2022)
 ------------------
 * Add LICENSE file.

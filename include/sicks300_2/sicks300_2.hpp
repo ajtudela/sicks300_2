@@ -1,7 +1,7 @@
 /*
  * SICK S300 2 ROS NODE
  *
- * Copyright (c) 2022 Alberto José Tudela Roldán <ajtudela@gmail.com>
+ * Copyright (c) 2022-2023 Alberto José Tudela Roldán <ajtudela@gmail.com>
  * 
  * This file is part of sicks300_2 project.
  * 
@@ -34,8 +34,8 @@ class SickS3002: public rclcpp_lifecycle::LifecycleNode{
 		SickS3002(const std::string& name, bool intra_process_comms = false);
 		~SickS3002();
 		rclcpp_CallReturn on_configure(const rclcpp_lifecycle::State &);
-		rclcpp_CallReturn on_activate(const rclcpp_lifecycle::State &);
-		rclcpp_CallReturn on_deactivate(const rclcpp_lifecycle::State &);
+		rclcpp_CallReturn on_activate(const rclcpp_lifecycle::State & state);
+		rclcpp_CallReturn on_deactivate(const rclcpp_lifecycle::State & state);
 		rclcpp_CallReturn on_cleanup(const rclcpp_lifecycle::State &);
 		rclcpp_CallReturn on_shutdown(const rclcpp_lifecycle::State & state);
 
@@ -50,7 +50,7 @@ class SickS3002: public rclcpp_lifecycle::LifecycleNode{
 		int baud_, scan_id_;
 		bool inverted_, debug_, synced_time_ready_;
 		unsigned int synced_sick_stamp_;
-		double scan_duration_, scan_cycle_time_, communication_timeout_;
+		double scan_duration_, scan_cycle_time_, scan_delay_, communication_timeout_;
 		ScannerSickS300 scanner_;
 		rclcpp::TimerBase::SharedPtr timer_;
 

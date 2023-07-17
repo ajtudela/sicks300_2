@@ -5,6 +5,7 @@ laser_front:
     baud: 500000
     scan_duration: 0.025 # No info about that in SICK-docu, but 0.025 is believable and looks good in rviz
     scan_cycle_time: 0.040 # SICK-docu says S300 scans every 40ms
+    scan_delay: 0.075
     inverted: false
     scan_id: 7
     frame_id: base_laser_link
@@ -19,9 +20,15 @@ laser_front:
 # Filter the laserscan behind the robot
 scan_filter:
   ros__parameters:
-    filter1:
-      name: inside
-      type: laser_filters/LaserScanAngularBoundsFilter
-      params:
-        lower_angle: -2.05
-        upper_angle: 2.22
+    lower_angle: -2.05
+    upper_angle: 2.22
+
+# Filter the laserscan behind the robot using laser_filters
+#scan_filter:
+#  ros__parameters:
+#    filter1:
+#      name: inside
+#      type: laser_filters/LaserScanAngularBoundsFilter
+#      params:
+#        lower_angle: -2.05
+#        upper_angle: 2.22

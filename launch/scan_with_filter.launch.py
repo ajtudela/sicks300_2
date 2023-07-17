@@ -36,25 +36,56 @@ def generate_launch_description():
         description='Full path to the Sicks300 parameter file to use'
     )
 
+    declare_log_level_arg = DeclareLaunchArgument(
+        name='log-level',
+        default_value='info',
+        description='Logging level (info, debug, ...)'
+    )
+
     # Prepare the sicks300_2 node.
     sicks300_2_node = LifecycleNode(
-            package = 'sicks300_2',
-            namespace = '',
-            executable = 'sicks300_2',
-            name = 'laser_front',
-            parameters = [sicks300_param_file],
-            emulate_tty = True
-        )
+        package = 'sicks300_2',
+        namespace = '',
+        executable = 'sicks300_2',
+        name = 'laser_front',
+        parameters = [sicks300_param_file],
+        emulate_tty = True,
+        output='screen', 
+        arguments=[
+            '--ros-args', 
+            '--log-level', ['laser_front:=', LaunchConfiguration('log-level')]]
+    )
 
     # Prepare the filter node.
     filter_node = Node(
-            package = 'laser_filters',
-            namespace = '',
-            executable = 'scan_to_scan_filter_chain',
-            name = 'scan_filter',
-            parameters = [sicks300_param_file],
-            emulate_tty = True
-        )
+        package = 'sicks300_2',
+        namespace = '',
+        executable = 'scan_filter',
+        name = 'scan_filter',
+        parameters = [sicks300_param_file],
+        emulate_tty = True,
+        output='screen',
+        remappings=[
+            ('/scan_filtered', '/scan/filtered')],
+        arguments=[
+            '--ros-args', 
+            '--log-level', ['scan_filter:=', LaunchConfiguration('log-level')]]
+    )
+
+    laser_filter_node = Node(
+        package = 'laser_filters',
+        namespace = '',
+        executable = 'scan_to_scan_filter_chain',
+        name = 'scan_filter',
+        parameters = [sicks300_param_file],
+        emulate_tty = True,
+        output='screen',
+        remappings=[
+            ('/scan_filtered', '/scan/filtered')],
+        arguments=[
+            '--ros-args', 
+            '--log-level', ['scan_filter:=', LaunchConfiguration('log-level')]]
+    )
 
     # When the sick node reaches the 'inactive' state, make it take the 'activate' transition.
     register_event_handler_for_sick_reaches_inactive_state = RegisterEventHandler(
@@ -91,6 +122,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         sicks300_param_file_launch_arg,
+        declare_log_level_arg,
         register_event_handler_for_sick_reaches_inactive_state,
         register_event_handler_for_sick_reaches_active_state,
         sicks300_2_node,

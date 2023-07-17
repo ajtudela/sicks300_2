@@ -72,7 +72,7 @@ Driver for the Sick S300 Safety laser scanners.
 
 	The laserscan data.
 
-* **`scan_standby`** ([std_msgs/Bool])
+* **`scan/standby`** ([std_msgs/Bool])
 
 	True if the scanner is in standby mode, false otherwise.
 
@@ -113,6 +113,10 @@ Driver for the Sick S300 Safety laser scanners.
 * **`scan_cycle_time`** (double, default: 0.040)
 
 	Cycle time of the scan in seconds. Documentation says S300 scans every 40ms.
+
+* **`scan_delay`** (double, default: 0.075)
+
+	Delay between the start of the scan and the first measurement in seconds.
 
 * **`debug`** (bool, default: false)
 
