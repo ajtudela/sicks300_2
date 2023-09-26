@@ -151,10 +151,11 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &){
 	scanner_.setRangeField(1, param);
 
 	// Configure the publishers
+	auto latched_profile = rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable();
 	laser_scan_pub_ = this->create_publisher<sensor_msgs::msg::LaserScan>(
 		scan_topic_, rclcpp::SensorDataQoS());
 	in_standby_pub_ = this->create_publisher<std_msgs::msg::Bool>(
-		scan_topic_ + "/standby", rclcpp::QoS(1).transient_local());
+		scan_topic_ + "/standby", latched_profile);
 	diag_pub_ = this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>(
 		"/diagnostics", rclcpp::QoS(1));
 
