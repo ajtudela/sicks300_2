@@ -1,7 +1,7 @@
 # sicks300_2
 
 ![ROS2](https://img.shields.io/badge/ros2-humble-blue?logo=ros&logoColor=white)
-[![Build](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml/badge.svg?branch=dev)](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml)
+[![Build](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml/badge.svg)](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml)
 
 ## Overview
 
