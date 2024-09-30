@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SICKS300_2__SICKS300_2_HPP_
-#define SICKS300_2__SICKS300_2_HPP_
+#ifndef SICKS300_2__SICKS300_HPP_
+#define SICKS300_2__SICKS300_HPP_
 
 // C++
 #include <vector>
@@ -181,4 +181,4 @@ protected:
 
 }  // namespace sicks300_2
 
-#endif  // SICKS300_2__SICKS300_2_HPP_
+#endif  // SICKS300_2__SICKS300_HPP_

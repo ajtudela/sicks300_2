@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "rclcpp/rclcpp.hpp"
-#include "sicks300_2/sicks300_2.hpp"
+#include "sicks300_2/sicks300.hpp"
 
 int main(int argc, char ** argv)
 {

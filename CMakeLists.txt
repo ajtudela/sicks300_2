@@ -14,11 +14,10 @@ endif()
 ################################################
 ## Find ament macros and libraries
 find_package(ament_cmake REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(diagnostic_msgs REQUIRED)
-find_package(nav2_util REQUIRED)
 
 ###########
 ## Build ##
@@ -32,7 +31,7 @@ include_directories(
 add_executable(${PROJECT_NAME}
   src/common/ScannerSickS300.cpp
   src/common/SerialIO.cpp
-  src/sicks300_2.cpp
+  src/sicks300.cpp
   src/main.cpp
 )
 ament_target_dependencies(${PROJECT_NAME}
@@ -40,14 +39,12 @@ ament_target_dependencies(${PROJECT_NAME}
   std_msgs
   sensor_msgs
   diagnostic_msgs
-  nav2_util
 )
 
 add_executable(scan_filter src/scan_filter.cpp)
 ament_target_dependencies(scan_filter
   rclcpp
   sensor_msgs
-  nav2_util
 )
 target_link_libraries(scan_filter)
 

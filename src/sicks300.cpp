@@ -18,9 +18,7 @@
 
 // ROS
 #include "rclcpp/qos.hpp"
-#include "nav2_util/node_utils.hpp"
-
-#include "sicks300_2/sicks300_2.hpp"
+#include "sicks300_2/sicks300.hpp"
 
 using namespace std::chrono_literals;
 
