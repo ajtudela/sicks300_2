@@ -1,7 +1,8 @@
 # sicks300_2
 
 ![ROS2](https://img.shields.io/badge/ros2-humble-blue?logo=ros&logoColor=white)
-[![Build](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml/badge.svg)](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml)
+![License](https://img.shields.io/github/license/ajtudela/sicks300_2)
+[![Build](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml/badge.svg?branch=dev)](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml)
 
 ## Overview
 
@@ -17,7 +18,7 @@ However, it does not cover the full functionality of the protocol:
 
 **Keywords:** ROS2, laser, driver, sick s300, lifecycle
 
-The sicks300_2 package has been tested under [ROS2] Humble on [Ubuntu] 22.04. This code is mainly based on [cob_sick_s300](http://wiki.ros.org/cob_sick_s300) but ported to ROS2; expect that it changes often and any fitness for a particular purpose is disclaimed.
+The sicks300_2 package has been tested under [ROS2] Humble on [Ubuntu] 22.04. but ported to ROS2. This is research code, expect that it changes often and any fitness for a particular purpose is disclaimed.
 
 ## S300 Configuration
 Here are a few notes about how to best configure the S300:
@@ -38,27 +39,29 @@ Here are a few notes about how to best configure the S300:
 #### Dependencies
 
 - [Robot Operating System (ROS) 2](https://docs.ros.org/en/humble/) (middleware for robotics),
-- [Boost](https://www.boost.org/) (C++ source libraries)
 
 #### Building
 
 To build from source, clone the latest version from this repository into your colcon workspace and compile the package using
-
-	cd colcon_workspace/src
-	git clone https://github.com/ajtudela/sicks300_2.git
-	cd ../
-	rosdep install -i --from-path src --rosdistro humble -y
-	colcon build
+```bash
+cd colcon_workspace/src
+git clone https://github.com/ajtudela/sicks300_2.git
+cd ../
+rosdep install -i --from-path src --rosdistro humble -y
+colcon build
+```
 
 ## Usage
 
 Run the sicks300_2 node with:
-
-	ros2 run sicks300_2 sicks300_2
+```bash
+ros2 run sicks300_2 sicks300_2
+```
 
 Optionally, you can launch this node with an angulor bound filter:
-
-	ros2 launch sicks300_2 scan_with_filter.launch.py
+```bash
+ros2 launch sicks300_2 scan_with_filter.launch.py
+```
 
 ## Nodes
 

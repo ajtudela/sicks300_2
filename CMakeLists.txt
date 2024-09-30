@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.5)
 project(sicks300_2)
 
 # Default to C++17
@@ -42,7 +42,6 @@ ament_target_dependencies(${PROJECT_NAME}
   diagnostic_msgs
   nav2_util
 )
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 
 add_executable(scan_filter src/scan_filter.cpp)
 ament_target_dependencies(scan_filter
@@ -79,12 +78,16 @@ install(PROGRAMS scripts/find_minimums.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
-#############
-## Testing ##
-#############
+# ###########
+# Testing  ##
+# ###########
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
+
+  # the following line skips the linter which checks for copyrights
+  set(ament_cmake_copyright_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
+  # add_subdirectory(test)
 endif()
 
 ament_package()

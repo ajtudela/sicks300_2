@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
 
-#ifndef SCANNERSICKS300_INCLUDEDEF_H
-#define SCANNERSICKS300_INCLUDEDEF_H
-//-----------------------------------------------
+#ifndef COMMON__SCANNERSICKS300_H_
+#define COMMON__SCANNERSICKS300_H_
 
 // base classes
-#include <string>
-#include <vector>
-#include <map>
-#include <iostream>
 #include <math.h>
 #include <stdio.h>
-
 #include <common/SerialIO.h>
 #include <common/TelegramS300.h>
+
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
 
 /**
  * Driver class for the laser scanner SICK S300 Professional.
@@ -40,93 +38,93 @@
 class ScannerSickS300
 {
 public:
+  // set of parameters which are specific to the SickS300
+  struct ParamType
+  {
+    int range_field;             // measurement range (1 to 5) --> usually 1 (default)
+    double dScale;               // scaling of the scan (multiply with to get scan in meters)
+    double dStartAngle;          // scan start angle
+    double dStopAngle;           // scan stop angle
+  };
 
-	// set of parameters which are specific to the SickS300
-	struct ParamType
-	{
-		int range_field; //measurement range (1 to 5) --> usually 1 (default)
-		double dScale;		// scaling of the scan (multiply with to get scan in meters)
-		double dStartAngle;	// scan start angle
-		double dStopAngle;	// scan stop angle
-	};
+  // storage container for received scanner data
+  struct ScanPolarType
+  {
+    double dr;             // distance //r;
+    double da;             // angle //a;
+    double di;             // intensity; //bool bGlare;
+  };
 
-	// storage container for received scanner data
-	struct ScanPolarType
-	{
-		double dr; // distance //r;
-		double da; // angle //a;
-		double di; // intensity; //bool bGlare;
-	};
+  enum
+  {
+    SCANNER_S300_READ_BUF_SIZE = 10000,
+    READ_BUF_SIZE = 10000,
+    WRITE_BUF_SIZE = 10000
+  };
 
-	enum
-	{
-		SCANNER_S300_READ_BUF_SIZE = 10000,
-		READ_BUF_SIZE = 10000,
-		WRITE_BUF_SIZE = 10000
-	};
+  // Constructor
+  ScannerSickS300();
 
-	// Constructor
-	ScannerSickS300();
+  // Destructor
+  ~ScannerSickS300();
 
-	// Destructor
-	~ScannerSickS300();
+  /**
+   * Opens serial port.
+   * @param pcPort used "COMx" or "/dev/tty1"
+   * @param iBaudRate baud rate
+   * @param iScanId the scanner id in the data header (7 by default)
+   */
+  bool open(const char * pcPort, int iBaudRate, int iScanId);
 
-	/**
-	 * Opens serial port.
-	 * @param pcPort used "COMx" or "/dev/tty1"
-	 * @param iBaudRate baud rate
-	 * @param iScanId the scanner id in the data header (7 by default)
-	 */
-	bool open(const char* pcPort, int iBaudRate, int iScanId);
+  // not implemented
+  void resetStartup();
 
-	// not implemented
-	void resetStartup();
+  // not implmented
+  void startScanner();
 
-	// not implmented
-	void startScanner();
+  // not implemented
+  void stopScanner();
+  // sick_lms.Uninitialize();
 
-	// not implemented
-	void stopScanner();
-	//sick_lms.Uninitialize();
+  // whether the scanner is currently in Standby or not
+  bool isInStandby() {return m_bInStandby;}
 
-	// whether the scanner is currently in Standby or not
-	bool isInStandby() {return m_bInStandby;}
+  void purgeScanBuf();
 
-	void purgeScanBuf();
+  bool getScan(
+    std::vector < double > & vdDistanceM, std::vector < double > & vdAngleRAD,
+    std::vector < double > & vdIntensityAU, unsigned int & iTimestamp,
+    unsigned int & iTimeNow, const bool debug);
 
-	bool getScan(std::vector<double> &vdDistanceM, std::vector<double> &vdAngleRAD, std::vector<double> &vdIntensityAU, unsigned int &iTimestamp, unsigned int &iTimeNow, const bool debug);
-
-	void setRangeField(const int field, const ParamType &param) {m_Params[field] = param;}
+  void setRangeField(const int field, const ParamType & param) {m_Params[field] = param;}
 
 private:
+  // Constants
+  static const double c_dPi;
 
-	// Constants
-	static const double c_dPi;
+  // Parameters
+  typedef std::map < int, ParamType > PARAM_MAP;
+  PARAM_MAP m_Params;
+  double m_dBaudMult;
 
-	// Parameters
-	typedef std::map<int, ParamType> PARAM_MAP;
-	PARAM_MAP m_Params;
-	double m_dBaudMult;
+  // Variables
+  unsigned char m_ReadBuf[READ_BUF_SIZE + 10];
+  unsigned char m_ReadBuf2[READ_BUF_SIZE + 10];
+  unsigned int m_uiSumReadBytes;
+  std::vector < int > m_viScanRaw;
+  int m_iPosReadBuf2;
+  static unsigned char m_iScanId;
+  int m_actualBufferSize;
+  bool m_bInStandby;
 
-	// Variables
-	unsigned char m_ReadBuf[READ_BUF_SIZE+10];
-	unsigned char m_ReadBuf2[READ_BUF_SIZE+10];
-	unsigned int m_uiSumReadBytes;
-	std::vector<int> m_viScanRaw;
-	int m_iPosReadBuf2;
-	static unsigned char m_iScanId;
-	int m_actualBufferSize;
-	bool m_bInStandby;
+  // Components
+  SerialIO m_SerialIO;
+  TelegramParser tp_;
 
-	// Components
-	SerialIO m_SerialIO;
-	TelegramParser tp_;
-
-	// Functions
-	void convertScanToPolar(const PARAM_MAP::const_iterator param, std::vector<int> viScanRaw,
-							std::vector<ScanPolarType>& vecScanPolar);
-
+  // Functions
+  void convertScanToPolar(
+    const PARAM_MAP::const_iterator param, std::vector < int > viScanRaw,
+    std::vector < ScanPolarType > & vecScanPolar);
 };
 
-//-----------------------------------------------
-#endif
+#endif  // COMMON__SCANNERSICKS300_H_
