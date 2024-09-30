@@ -15,7 +15,7 @@
  */
 
 #include <stdint.h>
-#include <common/ScannerSickS300.h>
+#include "common/ScannerSickS300.hpp"
 
 //-----------------------------------------------
 

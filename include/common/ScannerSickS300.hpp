@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef COMMON__SCANNERSICKS300_H_
-#define COMMON__SCANNERSICKS300_H_
+#ifndef COMMON__SCANNERSICKS300_HPP_
+#define COMMON__SCANNERSICKS300_HPP_
 
 // base classes
 #include <math.h>
 #include <stdio.h>
-#include <common/SerialIO.h>
-#include <common/TelegramS300.h>
-
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
+
+#include "common/SerialIO.hpp"
+#include "common/TelegramS300.hpp"
 
 /**
  * Driver class for the laser scanner SICK S300 Professional.
@@ -92,8 +92,8 @@ public:
   void purgeScanBuf();
 
   bool getScan(
-    std::vector < double > & vdDistanceM, std::vector < double > & vdAngleRAD,
-    std::vector < double > & vdIntensityAU, unsigned int & iTimestamp,
+    std::vector<double> & vdDistanceM, std::vector<double> & vdAngleRAD,
+    std::vector<double> & vdIntensityAU, unsigned int & iTimestamp,
     unsigned int & iTimeNow, const bool debug);
 
   void setRangeField(const int field, const ParamType & param) {m_Params[field] = param;}
@@ -103,7 +103,7 @@ private:
   static const double c_dPi;
 
   // Parameters
-  typedef std::map < int, ParamType > PARAM_MAP;
+  typedef std::map<int, ParamType> PARAM_MAP;
   PARAM_MAP m_Params;
   double m_dBaudMult;
 
@@ -111,7 +111,7 @@ private:
   unsigned char m_ReadBuf[READ_BUF_SIZE + 10];
   unsigned char m_ReadBuf2[READ_BUF_SIZE + 10];
   unsigned int m_uiSumReadBytes;
-  std::vector < int > m_viScanRaw;
+  std::vector<int> m_viScanRaw;
   int m_iPosReadBuf2;
   static unsigned char m_iScanId;
   int m_actualBufferSize;
@@ -123,8 +123,8 @@ private:
 
   // Functions
   void convertScanToPolar(
-    const PARAM_MAP::const_iterator param, std::vector < int > viScanRaw,
-    std::vector < ScanPolarType > & vecScanPolar);
+    const PARAM_MAP::const_iterator param, std::vector<int> viScanRaw,
+    std::vector<ScanPolarType> & vecScanPolar);
 };
 
-#endif  // COMMON__SCANNERSICKS300_H_
+#endif  // COMMON__SCANNERSICKS300_HPP_

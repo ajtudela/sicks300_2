@@ -29,7 +29,7 @@
 #include "diagnostic_msgs/msg/diagnostic_array.hpp"
 
 // Common
-#include "common/ScannerSickS300.h"
+#include "common/ScannerSickS300.hpp"
 
 typedef rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn rclcpp_CallReturn;
 

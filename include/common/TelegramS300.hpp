@@ -146,7 +146,8 @@ class TelegramParser
     std::cout << "trigger_result" << ":" << tc.trigger_result << std::endl;
     std::cout << "size" << ":" << 2 * tc.size << std::endl;
     std::cout << "coordination_flag" << ":" << std::hex << tc.coordination_flag << std::endl;
-    std::cout << "device_addresss" << ":" << std::hex << (int)tc.device_addresss << std::endl;
+    std::cout << "device_addresss" << ":" << std::hex << static_cast<int>(tc.device_addresss) <<
+      std::endl;
   }
 
   static void print(const TELEGRAM_COMMON2 & tc)
@@ -220,7 +221,7 @@ class TelegramParser
 
 public:
   TelegramParser()
-    : size_field_start_byte_(0),
+  : size_field_start_byte_(0),
     crc_bytes_in_size_(0),
     user_data_size_(0)
   {
@@ -231,7 +232,7 @@ public:
     const bool debug)
   {
     if (sizeof(tc1_) > max_size) {return false;}
-    tc1_ = *((TELEGRAM_COMMON1 *)buffer);
+    tc1_ = *reinterpret_cast<const TELEGRAM_COMMON1 *>(buffer);
 
     if (!check(tc1_, DEVICE_ADDR)) {
       // if(debug) std::cout<<"basic check failed"<<std::endl;
@@ -241,8 +242,10 @@ public:
     ntoh(tc1_);
     if (debug) {print(tc1_);}
 
-    tc2_ = *((TELEGRAM_COMMON2 *)(buffer + sizeof(TELEGRAM_COMMON1)));
-    tc3_ = *((TELEGRAM_COMMON3 *)(buffer + (sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2))));
+    tc2_ = *(reinterpret_cast<const TELEGRAM_COMMON2 *>(buffer + sizeof(TELEGRAM_COMMON1)));
+    tc3_ =
+      *(reinterpret_cast<const TELEGRAM_COMMON3 *>(buffer +
+      (sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2))));
 
     TELEGRAM_TAIL tt;
     uint16_t crc;
@@ -271,12 +274,12 @@ public:
         sizeof(TELEGRAM_TAIL);
 
       tt =
-        *((TELEGRAM_TAIL *) (buffer +
+        *(reinterpret_cast<const TELEGRAM_TAIL *>(buffer +
         (sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2) + user_data_size_)) );
       ntoh(tt);
       crc =
         createCRC(
-        (uint8_t *)buffer + JUNK_SIZE,
+        const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(buffer)) + JUNK_SIZE,
         full_data_size - JUNK_SIZE - sizeof(TELEGRAM_TAIL));
     } else {
       // Special handling for the new protocol, as the settings cannot be fully deduced
@@ -294,12 +297,12 @@ public:
         sizeof(TELEGRAM_TAIL);
 
       tt =
-        *((TELEGRAM_TAIL *) (buffer +
+        *(reinterpret_cast<const TELEGRAM_TAIL *>(buffer +
         (sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2) + user_data_size_)) );
       ntoh(tt);
       crc =
         createCRC(
-        (uint8_t *)buffer + JUNK_SIZE,
+        const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(buffer)) + JUNK_SIZE,
         full_data_size - JUNK_SIZE - sizeof(TELEGRAM_TAIL));
 
       if (tt.crc != crc) {
@@ -317,18 +320,18 @@ public:
           sizeof(TELEGRAM_TAIL);
 
         tt =
-          *((TELEGRAM_TAIL *) (buffer +
+          *(reinterpret_cast<const TELEGRAM_TAIL *>(buffer +
           (sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2) + user_data_size_)) );
         ntoh(tt);
         crc =
           createCRC(
-          (uint8_t *)buffer + JUNK_SIZE,
+          const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(buffer)) + JUNK_SIZE,
           full_data_size - JUNK_SIZE - sizeof(TELEGRAM_TAIL));
       }
     }
 
     if ( (sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2) + user_data_size_ +
-      sizeof(TELEGRAM_TAIL)) > (int)max_size)
+      sizeof(TELEGRAM_TAIL)) > static_cast<int>(max_size))
     {
       if (debug) {std::cout << "invalid header size" << std::endl;}
       return false;
@@ -356,8 +359,8 @@ public:
         if (debug) {std::cout << "got distance" << std::endl;}
 
         td_ =
-          *((TELEGRAM_DISTANCE *)(buffer + sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2) +
-          sizeof(TELEGRAM_COMMON3)));
+          *(reinterpret_cast<const TELEGRAM_DISTANCE *>(buffer + sizeof(TELEGRAM_COMMON1) +
+          sizeof(TELEGRAM_COMMON2) + sizeof(TELEGRAM_COMMON3)));
         ntoh(td_);
         // print(td_);
         break;
@@ -388,7 +391,7 @@ public:
            sizeof(TELEGRAM_TAIL);
   }
 
-  void readDistRaw(const unsigned char * buffer, std::vector < int > & res, bool debug) const
+  void readDistRaw(const unsigned char * buffer, std::vector<int> & res, bool debug) const
   {
     res.clear();
     if (!isDist()) {return;}
@@ -399,11 +402,12 @@ public:
     if (debug) {std::cout << "Number of points: " << std::dec << num_points << std::endl;}
     for (size_t i = 0; i < num_points; ++i) {
       TELEGRAM_S300_DIST_2B dist =
-        *((TELEGRAM_S300_DIST_2B *) (buffer + (sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2) +
+        *(reinterpret_cast<const TELEGRAM_S300_DIST_2B *>(buffer +
+        (sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2) +
         sizeof(TELEGRAM_COMMON3) + sizeof(TELEGRAM_DISTANCE) +
         i * sizeof(TELEGRAM_S300_DIST_2B))) );
       // for distance only: res.push_back((int)dist.distance);
-      res.push_back((int)dist.val16);
+      res.push_back(static_cast<int>(dist.val16));
     }
   }
 };

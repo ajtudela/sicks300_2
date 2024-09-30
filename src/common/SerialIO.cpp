@@ -16,7 +16,6 @@
 
 // #include "stdafx.h"
 
-#include "common/SerialIO.h"
 #include <math.h>
 #include <unistd.h>
 #include <errno.h>
@@ -26,6 +25,8 @@
 #include <sys/ioctl.h>
 #include <linux/serial.h>
 #include <iostream>
+
+#include "common/SerialIO.hpp"
 
 // #define _PRINT_BYTES
 
