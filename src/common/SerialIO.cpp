@@ -217,6 +217,7 @@ int SerialIO::openIO()
       m_tio.c_cflag |= PARODD;
     // break must not be active here as we need the combination of PARODD and PARENB on odd parity.
     // break;
+    // fall through
 
     case PA_EVEN:
       m_tio.c_cflag |= PARENB;
@@ -302,28 +303,6 @@ void SerialIO::setBytePeriod(double Period)
 }
 
 //-----------------------------------------------
-void SerialIO::changeBaudRate(int iBaudRate)
-{
-  /*
-  int iRetVal;
-
-  m_BaudRate = iBaudRate;
-
-  int iNewBaudrate = int(m_BaudRate * m_Multiplier + 0.5);
-  int iBaudrateCode = getBaudrateCode(iNewBaudrate);
-  cfsetispeed(&m_tio, iBaudrateCode);
-  cfsetospeed(&m_tio, iBaudrateCode);
-
-  iRetVal = tcsetattr(m_Device, TCSANOW, &m_tio);
-  if(iRetVal == -1)
-  {
-        std::cout << "error in SerialCom::changeBaudRate()" << std::endl;
-        char c;
-        std::cin >> c;
-        exit(0);
-  }*/
-}
-
 
 int SerialIO::readBlocking(char * Buffer, int Length)
 {

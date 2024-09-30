@@ -152,11 +152,10 @@ void ScannerSickS300::stopScanner()
 //-----------------------------------------------
 bool ScannerSickS300::getScan(
   std::vector<double> & vdDistanceM, std::vector<double> & vdAngleRAD,
-  std::vector<double> & vdIntensityAU, unsigned int & iTimestamp,
+  std::vector<double> & vdIntensityAU, unsigned int & /*iTimestamp*/,
   unsigned int & iTimeNow, const bool debug)
 {
   bool bRet = false;
-  int i;
   int iNumRead2 = 0;
   std::vector<ScanPolarType> vecScanPolar;
 
@@ -174,7 +173,7 @@ bool ScannerSickS300::getScan(
   m_actualBufferSize = m_actualBufferSize + iNumRead2;
 
   // Try to find scan. Searching backwards in the receive queue.
-  for (i = m_actualBufferSize; i >= 0; i--) {
+  for (int i = m_actualBufferSize; i >= 0; i--) {
     // parse through the telegram until header with correct scan id is found
     if (tp_.parseHeader(m_ReadBuf + i, m_actualBufferSize - i, m_iScanId, debug)) {
       tp_.readDistRaw(m_ReadBuf + i, m_viScanRaw, debug);
@@ -183,8 +182,8 @@ bool ScannerSickS300::getScan(
         bRet = true;
         int old = m_actualBufferSize;
         m_actualBufferSize -= tp_.getCompletePacketSize() + i;
-        for (int i = 0; i < old - m_actualBufferSize; i++) {
-          m_ReadBuf[i] = m_ReadBuf[i + old - m_actualBufferSize];
+        for (int j = 0; j < old - m_actualBufferSize; j++) {
+          m_ReadBuf[j] = m_ReadBuf[j + old - m_actualBufferSize];
         }
         break;
       }

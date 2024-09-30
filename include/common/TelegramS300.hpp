@@ -46,58 +46,58 @@ class TelegramParser
 {
   #pragma pack(push, 1)
   union TELEGRAM_COMMON1 {
-    struct
+    struct COMMON1
     {
       uint32_t reply_telegram;
       uint16_t trigger_result;
       uint16_t size;                   // in 16bit=2byte words
       uint8_t coordination_flag;
       uint8_t device_addresss;
-    };
+    } common1;
     uint8_t bytes[10];
   };
   union TELEGRAM_COMMON2 {
-    struct
+    struct COMMON2
     {
       uint16_t protocol_version;
       uint16_t status;
       uint32_t scan_number;
       uint16_t telegram_number;
-    };
+    } common2;
     uint8_t bytes[10];
   };
   union TELEGRAM_COMMON3 {
-    struct
+    struct TYPE
     {
       uint16_t type;
-    };
+    } type;
     uint8_t bytes[2];
   };
 
   union TELEGRAM_DISTANCE {
-    struct
+    struct TYPE
     {
       uint16_t type;
-    };
+    } type;
     uint8_t bytes[2];
   };
 
   union TELEGRAM_TAIL {
-    struct
+    struct CRC
     {
       uint16_t crc;
-    };
+    } crc_struct;
     uint8_t bytes[2];
   };
 
   union TELEGRAM_S300_DIST_2B {
-    struct
+    struct DISTANCE
     {
       unsigned distance : 13;                // cm
       unsigned bit13 : 1;                    // reflector or scanner distorted
       unsigned protective : 1;
       unsigned warn_field : 1;
-    };
+    } distance_struct;
     uint16_t val16;
     uint8_t bytes[2];
   };
@@ -110,27 +110,27 @@ class TelegramParser
 
   static void ntoh(TELEGRAM_COMMON1 & tc)
   {
-    tc.reply_telegram = ntohl(tc.reply_telegram);
-    tc.trigger_result = ntohs(tc.trigger_result);
-    tc.size = ntohs(tc.size);
+    tc.common1.reply_telegram = ntohl(tc.common1.reply_telegram);
+    tc.common1.trigger_result = ntohs(tc.common1.trigger_result);
+    tc.common1.size = ntohs(tc.common1.size);
   }
 
   static void ntoh(TELEGRAM_COMMON2 & tc)
   {
-    tc.protocol_version = ntohs(tc.protocol_version);
-    tc.status = ntohs(tc.status);
-    tc.scan_number = ntohl(tc.scan_number);
-    tc.telegram_number = ntohs(tc.telegram_number);
+    tc.common2.protocol_version = ntohs(tc.common2.protocol_version);
+    tc.common2.status = ntohs(tc.common2.status);
+    tc.common2.scan_number = ntohl(tc.common2.scan_number);
+    tc.common2.telegram_number = ntohs(tc.common2.telegram_number);
   }
 
   static void ntoh(TELEGRAM_COMMON3 & tc)
   {
-    tc.type = ntohs(tc.type);
+    tc.type.type = ntohs(tc.type.type);
   }
 
   static void ntoh(TELEGRAM_DISTANCE & tc)
   {
-    tc.type = ntohs(tc.type);
+    tc.type.type = ntohs(tc.type.type);
   }
 
   static void ntoh(TELEGRAM_TAIL & /* tc */)
@@ -142,30 +142,31 @@ class TelegramParser
   static void print(const TELEGRAM_COMMON1 & tc)
   {
     std::cout << "HEADER" << std::dec << std::endl;
-    std::cout << "reply_telegram" << ":" << tc.reply_telegram << std::endl;
-    std::cout << "trigger_result" << ":" << tc.trigger_result << std::endl;
-    std::cout << "size" << ":" << 2 * tc.size << std::endl;
-    std::cout << "coordination_flag" << ":" << std::hex << tc.coordination_flag << std::endl;
-    std::cout << "device_addresss" << ":" << std::hex << static_cast<int>(tc.device_addresss) <<
-      std::endl;
+    std::cout << "reply_telegram" << ":" << tc.common1.reply_telegram << std::endl;
+    std::cout << "trigger_result" << ":" << tc.common1.trigger_result << std::endl;
+    std::cout << "size" << ":" << 2 * tc.common1.size << std::endl;
+    std::cout << "coordination_flag" << ":" << std::hex <<
+      tc.common1.coordination_flag << std::endl;
+    std::cout << "device_addresss" << ":" << std::hex <<
+      static_cast<int>(tc.common1.device_addresss) << std::endl;
   }
 
   static void print(const TELEGRAM_COMMON2 & tc)
   {
-    std::cout << "protocol_version" << ":" << std::hex << tc.protocol_version << std::endl;
-    std::cout << "status" << ":" << tc.status << std::endl;
-    std::cout << "scan_number" << ":" << std::hex << tc.scan_number << std::endl;
-    std::cout << "telegram_number" << ":" << std::hex << tc.telegram_number << std::endl;
+    std::cout << "protocol_version" << ":" << std::hex << tc.common2.protocol_version << std::endl;
+    std::cout << "status" << ":" << tc.common2.status << std::endl;
+    std::cout << "scan_number" << ":" << std::hex << tc.common2.scan_number << std::endl;
+    std::cout << "telegram_number" << ":" << std::hex << tc.common2.telegram_number << std::endl;
   }
 
   static void print(const TELEGRAM_COMMON3 & tc)
   {
-    std::cout << "type" << ":" << std::hex << tc.type << std::endl;
-    switch (tc.type) {
+    std::cout << "type" << ":" << std::hex << tc.type.type << std::endl;
+    switch (tc.type.type) {
       case IO: std::cout << "type" << ": " << "IO" << std::endl; break;
       case DISTANCE: std::cout << "type" << ": " << "DISTANCE" << std::endl; break;
       case REFLEXION: std::cout << "type" << ": " << "REFLEXION" << std::endl; break;
-      default: std::cout << "type" << ": " << "unknown " << tc.type << std::endl; break;
+      default: std::cout << "type" << ": " << "unknown " << tc.type.type << std::endl; break;
     }
     std::cout << std::dec << std::endl;
   }
@@ -173,14 +174,14 @@ class TelegramParser
   static void print(const TELEGRAM_DISTANCE & tc)
   {
     std::cout << "DISTANCE" << std::endl;
-    std::cout << "type" << ":" << std::hex << tc.type << std::endl;
-    switch (tc.type) {
+    std::cout << "type" << ":" << std::hex << tc.type.type << std::endl;
+    switch (tc.type.type) {
       case _1: std::cout << "field 1" << std::endl; break;
       case _2: std::cout << "field 2" << std::endl; break;
       case _3: std::cout << "field 3" << std::endl; break;
       case _4: std::cout << "field 4" << std::endl; break;
       case _5: std::cout << "field 5" << std::endl; break;
-      default: std::cout << "unknown " << tc.type << std::endl; break;
+      default: std::cout << "unknown " << tc.type.type << std::endl; break;
     }
     std::cout << std::dec << std::endl;
   }
@@ -188,7 +189,7 @@ class TelegramParser
   static void print(const TELEGRAM_TAIL & tc)
   {
     std::cout << "TAIL" << std::endl;
-    std::cout << "crc" << ":" << std::hex << tc.crc << std::endl;
+    std::cout << "crc" << ":" << std::hex << tc.crc_struct.crc << std::endl;
     std::cout << std::dec << std::endl;
   }
 
@@ -199,7 +200,7 @@ class TelegramParser
   static bool check(const TELEGRAM_COMMON1 & tc, const uint8_t DEVICE_ADDR)
   {
     uint8_t TELEGRAM_COMMON_PATTERN_EQ[] =
-    {0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0 & DEVICE_ADDR /*version, 2, 1*/};
+    {0, 0, 0, 0, 0, 0, 0, 0, 0xFF, static_cast<uint8_t>(0 & DEVICE_ADDR) /*version, 2, 1*/};
     uint8_t TELEGRAM_COMMON_PATTERN_OR[] =
     {0, 0, 0, 0, 0, 0, 0xff, 0xff, 0, 0xff /*version, 1, 0*/};
 
@@ -260,14 +261,14 @@ public:
     //
     // For the old protocol/compatability mode:
     // "The telegram size is calculated starting with the 5 byte up to and including the CRC."
-    if (tc2_.protocol_version == 0x102) {
+    if (tc2_.common2.protocol_version == 0x102) {
       size_field_start_byte_ = 4;               // start at 5th byte (started numbering at 0)
       crc_bytes_in_size_ = 2;                   // include 2 bytes CRC
 
       // the user_data_size is the size of the actual payload data in bytes,
       // i.e. all data except of the CRC and the first two common telegrams
       user_data_size_ =
-        2 * tc1_.size -
+        2 * tc1_.common1.size -
         (sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2) - size_field_start_byte_ +
         crc_bytes_in_size_);
       full_data_size = sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2) + user_data_size_ +
@@ -290,7 +291,7 @@ public:
       size_field_start_byte_ = 8;               // start at 9th byte (started numbering at 0)
       crc_bytes_in_size_ = 2;                   // include 2 bytes CRC
       user_data_size_ =
-        2 * tc1_.size -
+        2 * tc1_.common1.size -
         (sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2) - size_field_start_byte_ +
         crc_bytes_in_size_);
       full_data_size = sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2) + user_data_size_ +
@@ -305,14 +306,14 @@ public:
         const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(buffer)) + JUNK_SIZE,
         full_data_size - JUNK_SIZE - sizeof(TELEGRAM_TAIL));
 
-      if (tt.crc != crc) {
+      if (tt.crc_struct.crc != crc) {
         // If any I/O or measuring field is configured:
         // "The telegram size is calculated starting with the 13 byte up to and including the
         // last byte bevfre (sic!) the CRC."
         size_field_start_byte_ = 12;                // start at 13th byte (started numbering at 0)
         crc_bytes_in_size_ = 0;                     // do NOT include 2 bytes CRC
         user_data_size_ =
-          2 * tc1_.size -
+          2 * tc1_.common1.size -
           (sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2) - size_field_start_byte_ +
           crc_bytes_in_size_);
         full_data_size =
@@ -331,14 +332,14 @@ public:
     }
 
     if ( (sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2) + user_data_size_ +
-      sizeof(TELEGRAM_TAIL)) > static_cast<int>(max_size))
+      sizeof(TELEGRAM_TAIL)) > static_cast<size_t>(max_size))
     {
       if (debug) {std::cout << "invalid header size" << std::endl;}
       return false;
     }
 
 
-    if (tt.crc != crc) {
+    if (tt.crc_struct.crc != crc) {
       if (debug) {
         print(tc2_);
         print(tc3_);
@@ -346,13 +347,13 @@ public:
         std::cout << "at " << std::dec <<
           (sizeof(TELEGRAM_COMMON1) + sizeof(TELEGRAM_COMMON2) + user_data_size_) << std::hex <<
           std::endl;
-        std::cout << "invalid CRC: " << crc << " (" << tt.crc << ")" << std::endl;
+        std::cout << "invalid CRC: " << crc << " (" << tt.crc_struct.crc << ")" << std::endl;
       }
       return false;
     }
 
     memset(&td_, 0, sizeof(td_));
-    switch (tc3_.type) {
+    switch (tc3_.type.type) {
       case IO: break;
 
       case DISTANCE:
@@ -372,10 +373,10 @@ public:
     return true;
   }
 
-  bool isDist() const {return tc3_.type == DISTANCE;}
+  bool isDist() const {return tc3_.type.type == DISTANCE;}
   int getField() const
   {
-    switch (td_.type) {
+    switch (td_.type.type) {
       case _1: return 1;
       case _2: return 2;
       case _3: return 3;

@@ -76,13 +76,6 @@ public:
   void setBaudRate(int BaudRate) {m_BaudRate = BaudRate;}
 
   /**
-   * Changes the baudrate.
-   * The serial port is allready open.
-   * @param BaudRate new baudrate.
-   */
-  void changeBaudRate(int BaudRate);
-
-  /**
    * Sets a multiplier for the baudrate.
    * Some serial cards need a specific multiplier for the baudrate.
    * @param Multiplier default is one.
@@ -92,8 +85,8 @@ public:
   /**
    * Sets the message format.
    */
-  void SetFormat(int ByteSize, ParityFlags Parity, int StopBits)
-  {m_ByteSize = ByteSize; m_Parity = Parity; m_StopBits = StopBits;}
+  void SetFormat(int ByteSize, ParityFlags Parity, int stopBits)
+  {m_ByteSize = ByteSize; m_Parity = Parity; m_StopBits = stopBits;}
 
   /**
    * Defines the handshake type.
