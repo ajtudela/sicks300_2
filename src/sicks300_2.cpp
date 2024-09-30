@@ -24,16 +24,18 @@
 
 using namespace std::chrono_literals;
 
-SickS3002::SickS3002(const std::string & name, bool intra_process_comms)
-: rclcpp_lifecycle::LifecycleNode(name, rclcpp::NodeOptions()
-    .use_intra_process_comms(intra_process_comms)),
-  synced_ros_time_(this->now()),
+namespace sicks300_2
+{
+
+SickS300::SickS300(const rclcpp::NodeOptions & options)
+: rclcpp_lifecycle::LifecycleNode("sicks300", "", options),
   synced_time_ready_(false),
-  synced_sick_stamp_(0)
+  synced_sick_stamp_(0),
+  synced_ros_time_(this->now())
 {
 }
 
-SickS3002::~SickS3002()
+SickS300::~SickS300()
 {
   if (timer_) {
     timer_->cancel();
@@ -41,38 +43,34 @@ SickS3002::~SickS3002()
   }
 }
 
-rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &)
+CallbackReturn SickS300::on_configure(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "Configuring the node...");
 
   // Declare and read parameters
-  nav2_util::declare_parameter_if_not_declared(
-    this, "port",
-    rclcpp::ParameterValue("/dev/ttyUSB0"),
+  declare_parameter_if_not_declared(
+    this, "port", rclcpp::ParameterValue("/dev/ttyUSB0"),
     rcl_interfaces::msg::ParameterDescriptor()
     .set__description("USB port of the scanner"));
   this->get_parameter("port", port_);
   RCLCPP_INFO(this->get_logger(), "The parameter port is set to: %s", port_.c_str());
 
-  nav2_util::declare_parameter_if_not_declared(
-    this,
-    "baud", rclcpp::ParameterValue(500000),
+  declare_parameter_if_not_declared(
+    this, "baud", rclcpp::ParameterValue(500000),
     rcl_interfaces::msg::ParameterDescriptor()
     .set__description("Baudrate to communicate with the laser scanner"));
   this->get_parameter("baud", baud_);
   RCLCPP_INFO(this->get_logger(), "The parameter baud is set to: %i", baud_);
 
-  nav2_util::declare_parameter_if_not_declared(
-    this,
-    "scan_id", rclcpp::ParameterValue(7),
+  declare_parameter_if_not_declared(
+    this, "scan_id", rclcpp::ParameterValue(7),
     rcl_interfaces::msg::ParameterDescriptor()
     .set__description("Identifier of the scanner"));
   this->get_parameter("scan_id", scan_id_);
   RCLCPP_INFO(this->get_logger(), "The parameter scan_id is set to: %i", scan_id_);
 
-  nav2_util::declare_parameter_if_not_declared(
-    this,
-    "inverted", rclcpp::ParameterValue(false),
+  declare_parameter_if_not_declared(
+    this, "inverted", rclcpp::ParameterValue(false),
     rcl_interfaces::msg::ParameterDescriptor()
     .set__description("Option to invert the direction of the measurements"));
   this->get_parameter("inverted", inverted_);
@@ -80,33 +78,29 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &)
     this->get_logger(),
     "The parameter inverted is set to: %s", inverted_ ? "true" : "false");
 
-  nav2_util::declare_parameter_if_not_declared(
-    this,
-    "scan_topic", rclcpp::ParameterValue("scan"),
+  declare_parameter_if_not_declared(
+    this, "scan_topic", rclcpp::ParameterValue("scan"),
     rcl_interfaces::msg::ParameterDescriptor()
     .set__description("The topic where the laser scan will be published"));
   this->get_parameter("scan_topic", scan_topic_);
   RCLCPP_INFO(this->get_logger(), "The parameter scan_topic is set to: %s", scan_topic_.c_str());
 
-  nav2_util::declare_parameter_if_not_declared(
-    this,
-    "frame_id", rclcpp::ParameterValue("base_laser_link"),
+  declare_parameter_if_not_declared(
+    this, "frame_id", rclcpp::ParameterValue("base_laser_link"),
     rcl_interfaces::msg::ParameterDescriptor()
     .set__description("The frame of the scanner"));
   this->get_parameter("frame_id", frame_id_);
   RCLCPP_INFO(this->get_logger(), "The parameter frame_id is set to: %s", frame_id_.c_str());
 
-  nav2_util::declare_parameter_if_not_declared(
-    this,
-    "scan_duration", rclcpp::ParameterValue(0.025),
+  declare_parameter_if_not_declared(
+    this, "scan_duration", rclcpp::ParameterValue(0.025),
     rcl_interfaces::msg::ParameterDescriptor()
     .set__description("Time between laser scans"));
   this->get_parameter("scan_duration", scan_duration_);
   RCLCPP_INFO(this->get_logger(), "The parameter scan_duration is set to: %f", scan_duration_);
 
-  nav2_util::declare_parameter_if_not_declared(
-    this,
-    "scan_cycle_time", rclcpp::ParameterValue(0.040),
+  declare_parameter_if_not_declared(
+    this, "scan_cycle_time", rclcpp::ParameterValue(0.040),
     rcl_interfaces::msg::ParameterDescriptor()
     .set__description("Cycle time of the scan"));
   this->get_parameter("scan_cycle_time", scan_cycle_time_);
@@ -114,9 +108,8 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &)
     this->get_logger(),
     "The parameter scan_cycle_time is set to: %f", scan_cycle_time_);
 
-  nav2_util::declare_parameter_if_not_declared(
-    this,
-    "scan_delay", rclcpp::ParameterValue(0.075),
+  declare_parameter_if_not_declared(
+    this, "scan_delay", rclcpp::ParameterValue(0.075),
     rcl_interfaces::msg::ParameterDescriptor()
     .set__description("Delay of the scan"));
   this->get_parameter("scan_delay", scan_delay_);
@@ -124,9 +117,8 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &)
     this->get_logger(),
     "The parameter scan_delay is set to: %f", scan_delay_);
 
-  nav2_util::declare_parameter_if_not_declared(
-    this,
-    "debug", rclcpp::ParameterValue(false),
+  declare_parameter_if_not_declared(
+    this, "debug", rclcpp::ParameterValue(false),
     rcl_interfaces::msg::ParameterDescriptor()
     .set__description("Option to toggle scanner debugging information"));
   this->get_parameter("debug", debug_);
@@ -134,9 +126,8 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &)
     this->get_logger(),
     "The parameter debug is set to: %s", debug_ ? "true" : "false");
 
-  nav2_util::declare_parameter_if_not_declared(
-    this,
-    "communication_timeout", rclcpp::ParameterValue(0.2),
+  declare_parameter_if_not_declared(
+    this, "communication_timeout", rclcpp::ParameterValue(0.2),
     rcl_interfaces::msg::ParameterDescriptor()
     .set__description("Timeout to shutdown the node"));
   this->get_parameter("communication_timeout", communication_timeout_);
@@ -148,17 +139,15 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &)
   // TODO(ajtudela): Change this when ROS will support YAML mixed types
   ScannerSickS300::ParamType param;
   param.range_field = 1;
-  nav2_util::declare_parameter_if_not_declared(
-    this,
-    "fields.1.scale", rclcpp::ParameterValue(0.01),
+  declare_parameter_if_not_declared(
+    this, "fields.1.scale", rclcpp::ParameterValue(0.01),
     rcl_interfaces::msg::ParameterDescriptor()
     .set__description("Scale of the field"));
   this->get_parameter("fields.1.scale", param.dScale);
   RCLCPP_INFO(this->get_logger(), "The parameter field.1.scale is set to: %f", param.dScale);
 
-  nav2_util::declare_parameter_if_not_declared(
-    this,
-    "fields.1.start_angle", rclcpp::ParameterValue(-135.0 / 180.0 * M_PI),
+  declare_parameter_if_not_declared(
+    this, "fields.1.start_angle", rclcpp::ParameterValue(-135.0 / 180.0 * M_PI),
     rcl_interfaces::msg::ParameterDescriptor()
     .set__description("Start angle of the field"));
   this->get_parameter("fields.1.start_angle", param.dStartAngle);
@@ -166,9 +155,8 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &)
     this->get_logger(),
     "The parameter field.1.start_angle is set to: %f", param.dStartAngle);
 
-  nav2_util::declare_parameter_if_not_declared(
-    this,
-    "fields.1.stop_angle", rclcpp::ParameterValue(135.0 / 180.0 * M_PI),
+  declare_parameter_if_not_declared(
+    this, "fields.1.stop_angle", rclcpp::ParameterValue(135.0 / 180.0 * M_PI),
     rcl_interfaces::msg::ParameterDescriptor()
     .set__description("Stop angle of the field"));
   this->get_parameter("fields.1.stop_angle", param.dStopAngle);
@@ -192,7 +180,7 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &)
     RCLCPP_ERROR(
       this->get_logger(),
       "...scanner not available on port %s. Please, try again.", port_.c_str());
-    return rclcpp_CallReturn::FAILURE;
+    return CallbackReturn::FAILURE;
   } else {
     // Wait for scan to get ready if successful
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -200,23 +188,23 @@ rclcpp_CallReturn SickS3002::on_configure(const rclcpp_lifecycle::State &)
       this->get_logger(),
       "...scanner opened successfully on port %s", port_.c_str());
 
-    return rclcpp_CallReturn::SUCCESS;
+    return CallbackReturn::SUCCESS;
   }
 }
 
-rclcpp_CallReturn SickS3002::on_activate(const rclcpp_lifecycle::State & state)
+CallbackReturn SickS300::on_activate(const rclcpp_lifecycle::State & state)
 {
   LifecycleNode::on_activate(state);
   RCLCPP_INFO(this->get_logger(), "Activating the node...");
 
   timer_ = this->create_wall_timer(
     std::chrono::duration<double>(scan_cycle_time_),
-    std::bind(&SickS3002::receiveScan, this));
+    std::bind(&SickS300::receiveScan, this));
 
-  return rclcpp_CallReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
-rclcpp_CallReturn SickS3002::on_deactivate(const rclcpp_lifecycle::State & state)
+CallbackReturn SickS300::on_deactivate(const rclcpp_lifecycle::State & state)
 {
   LifecycleNode::on_deactivate(state);
   RCLCPP_INFO(this->get_logger(), "Deactivating the node...");
@@ -226,10 +214,10 @@ rclcpp_CallReturn SickS3002::on_deactivate(const rclcpp_lifecycle::State & state
     timer_.reset();
   }
 
-  return rclcpp_CallReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
-rclcpp_CallReturn SickS3002::on_cleanup(const rclcpp_lifecycle::State &)
+CallbackReturn SickS300::on_cleanup(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "Cleaning the node...");
 
@@ -239,10 +227,10 @@ rclcpp_CallReturn SickS3002::on_cleanup(const rclcpp_lifecycle::State &)
   diag_pub_.reset();
   timer_.reset();
 
-  return rclcpp_CallReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
-rclcpp_CallReturn SickS3002::on_shutdown(const rclcpp_lifecycle::State & state)
+CallbackReturn SickS300::on_shutdown(const rclcpp_lifecycle::State & state)
 {
   RCLCPP_INFO(this->get_logger(), "Shutdown the node from state %s.", state.label().c_str());
 
@@ -252,15 +240,15 @@ rclcpp_CallReturn SickS3002::on_shutdown(const rclcpp_lifecycle::State & state)
   diag_pub_.reset();
   timer_.reset();
 
-  return rclcpp_CallReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
-bool SickS3002::open()
+bool SickS300::open()
 {
   return scanner_.open(port_.c_str(), baud_, scan_id_);
 }
 
-bool SickS3002::receiveScan()
+bool SickS300::receiveScan()
 {
   std::vector<double> ranges, rangeAngles, intensities;
   unsigned int iSickTimeStamp, iSickNow;
@@ -295,13 +283,13 @@ bool SickS3002::receiveScan()
   return true;
 }
 
-void SickS3002::publishStandby(bool in_standby)
+void SickS300::publishStandby(bool in_standby)
 {
   in_standby_.data = in_standby;
   in_standby_pub_->publish(in_standby_);
 }
 
-void SickS3002::publishLaserScan(
+void SickS300::publishLaserScan(
   std::vector<double> vdDistM, std::vector<double> vdAngRAD,
   std::vector<double> vdIntensAU, unsigned int iSickTimeStamp, unsigned int iSickNow)
 {
@@ -388,7 +376,7 @@ void SickS3002::publishLaserScan(
   diag_pub_->publish(diagnostics);
 }
 
-void SickS3002::publishError(std::string error)
+void SickS300::publishError(std::string error)
 {
   diagnostic_msgs::msg::DiagnosticArray diagnostics;
   diagnostics.header.stamp = this->now();
@@ -399,7 +387,7 @@ void SickS3002::publishError(std::string error)
   diag_pub_->publish(diagnostics);
 }
 
-void SickS3002::publishWarn(std::string warn)
+void SickS300::publishWarn(std::string warn)
 {
   diagnostic_msgs::msg::DiagnosticArray diagnostics;
   diagnostics.header.stamp = this->now();
@@ -409,3 +397,5 @@ void SickS3002::publishWarn(std::string warn)
   diagnostics.status[0].message = warn;
   diag_pub_->publish(diagnostics);
 }
+
+}  // namespace sicks300_2

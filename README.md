@@ -2,7 +2,7 @@
 
 ![ROS2](https://img.shields.io/badge/ros2-humble-blue?logo=ros&logoColor=white)
 ![License](https://img.shields.io/github/license/ajtudela/sicks300_2)
-[![Build](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml/badge.svg?branch=dev)](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml)
+[![Build](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml/badge.svg)](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml)
 
 ## Overview
 
