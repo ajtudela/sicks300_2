@@ -397,3 +397,6 @@ void SickS300::publishWarn(std::string warn)
 }
 
 }  // namespace sicks300_2
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(sicks300_2::SickS300)
