@@ -29,7 +29,7 @@
 #include "diagnostic_msgs/msg/diagnostic_array.hpp"
 
 // Common
-#include "common/ScannerSickS300.hpp"
+#include "sicks300_2/common/ScannerSickS300.hpp"
 
 namespace sicks300_2
 {

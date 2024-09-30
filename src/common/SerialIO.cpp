@@ -26,7 +26,7 @@
 #include <linux/serial.h>
 #include <iostream>
 
-#include "common/SerialIO.hpp"
+#include "sicks300_2/common/SerialIO.hpp"
 
 // #define _PRINT_BYTES
 

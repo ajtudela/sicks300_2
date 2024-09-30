@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef COMMON__SERIALIO_HPP_
-#define COMMON__SERIALIO_HPP_
+#ifndef SICKS300_2__COMMON__SERIALIO_HPP_
+#define SICKS300_2__COMMON__SERIALIO_HPP_
 
 #include <termios.h>
 #include <sys/select.h>
@@ -205,4 +205,4 @@ protected:
 };
 
 
-#endif  // COMMON__SERIALIO_HPP_
+#endif  // SICKS300_2__COMMON__SERIALIO_HPP_
