@@ -53,6 +53,12 @@ colcon build
 
 ## Usage
 
+Add the user to the dialout group to access the USB port:
+
+```bash
+sudo usermod -a -G dialout $USER
+```
+
 Run the sicks300_2 node with:
 ```bash
 ros2 run sicks300_2 sicks300_2
