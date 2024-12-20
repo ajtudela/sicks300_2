@@ -2,7 +2,7 @@
 Changelog for package sicks300_2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-X.X.X (XX-XX-2024)
+1.3.2 (20-12-2024)
 ------------------
 * Improve formating and linting.
 * Remove nav2_util dependency.
