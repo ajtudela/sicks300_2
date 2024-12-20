@@ -1,6 +1,13 @@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package sicks300_2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1.3.2 (20-12-2024)
+------------------
+* Improve formating and linting.
+* Remove nav2_util dependency.
+* CMakelists.txt use modern idioms.
+* Add more restricted compiled options.
 
 1.3.0 (20-06-2023)
 ------------------
