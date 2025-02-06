@@ -20,6 +20,7 @@ from sensor_msgs.msg import LaserScan
 
 
 class FindMinimus(Node):
+
     def __init__(self, min_val_):
         super().__init__('minimus_finder')
         self.subscription = self.create_subscription(

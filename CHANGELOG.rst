@@ -2,6 +2,10 @@
 Changelog for package sicks300_2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.3 (06-02-2025)
+------------------
+* First jazzy release.
+
 1.3.2 (20-12-2024)
 ------------------
 * Improve formating and linting.

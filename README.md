@@ -1,6 +1,6 @@
 # sicks300_2
 
-![ROS2](https://img.shields.io/badge/ros2-humble-blue?logo=ros&logoColor=white)
+![ROS2](https://img.shields.io/badge/ros2-jazzy-blue?logo=ros&logoColor=white)
 ![License](https://img.shields.io/github/license/ajtudela/sicks300_2)
 [![Build](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml/badge.svg)](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml)
 
@@ -18,7 +18,7 @@ However, it does not cover the full functionality of the protocol:
 
 **Keywords:** ROS2, laser, driver, sick s300, lifecycle
 
-The sicks300_2 package has been tested under [ROS2] Humble on [Ubuntu] 22.04. but ported to ROS2. This is research code, expect that it changes often and any fitness for a particular purpose is disclaimed.
+The sicks300_2 package has been tested under [ROS2] Jazzy on [Ubuntu] 24.04. but ported to ROS2. This is research code, expect that it changes often and any fitness for a particular purpose is disclaimed.
 
 ## S300 Configuration
 Here are a few notes about how to best configure the S300:
@@ -38,7 +38,7 @@ Here are a few notes about how to best configure the S300:
 
 #### Dependencies
 
-- [Robot Operating System (ROS) 2](https://docs.ros.org/en/humble/) (middleware for robotics),
+- [Robot Operating System (ROS) 2](https://docs.ros.org/en/jazzy/) (middleware for robotics),
 
 #### Building
 
@@ -47,7 +47,7 @@ To build from source, clone the latest version from this repository into your co
 cd colcon_workspace/src
 git clone https://github.com/ajtudela/sicks300_2.git
 cd ../
-rosdep install -i --from-path src --rosdistro humble -y
+rosdep install -i --from-path src --rosdistro jazzy -y
 colcon build
 ```
 
@@ -140,7 +140,7 @@ Driver for the Sick S300 Safety laser scanners.
 	Range configuration of the field. Set 1 by default.
 
 [Ubuntu]: https://ubuntu.com/
-[ROS2]: https://docs.ros.org/en/humble/
-[sensor_msgs/LaserScan]: https://docs.ros2.org/humble/api/sensor_msgs/msg/LaserScan.html
-[std_msgs/Bool]: https://docs.ros2.org/humble/api/std_msgs/msg/Bool.html
-[diagnostic_msgs/DiagnosticArray]: https://docs.ros2.org/humble/api/diagnostic_msgs/msg/DiagnosticArray.html
+[ROS2]: https://docs.ros.org/en/jazzy/
+[sensor_msgs/LaserScan]: https://docs.ros2.org/jazzy/api/sensor_msgs/msg/LaserScan.html
+[std_msgs/Bool]: https://docs.ros2.org/jazzy/api/std_msgs/msg/Bool.html
+[diagnostic_msgs/DiagnosticArray]: https://docs.ros2.org/jazzy/api/diagnostic_msgs/msg/DiagnosticArray.html
