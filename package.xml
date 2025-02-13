@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>sicks300_2</name>
+  <name>sicks300_ros2</name>
   <version>1.3.3</version>
   <description>This package published a laser scan message out of a Sick S300 laser scanner.</description>
   <maintainer email="ajtudela@gmail.com">Alberto Tudela</maintainer>

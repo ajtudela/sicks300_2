@@ -18,11 +18,11 @@
 
 // ROS
 #include "rclcpp/qos.hpp"
-#include "sicks300_2/sicks300.hpp"
+#include "sicks300_ros2/sicks300.hpp"
 
 using namespace std::chrono_literals;
 
-namespace sicks300_2
+namespace sicks300_ros2
 {
 
 SickS300::SickS300(const rclcpp::NodeOptions & options)
@@ -396,7 +396,7 @@ void SickS300::publishWarn(std::string warn)
   diag_pub_->publish(diagnostics);
 }
 
-}  // namespace sicks300_2
+}  // namespace sicks300_ros2
 
 #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(sicks300_2::SickS300)
+RCLCPP_COMPONENTS_REGISTER_NODE(sicks300_ros2::SickS300)

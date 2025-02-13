@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SICKS300_2__COMMON__SCANNERSICKS300_HPP_
-#define SICKS300_2__COMMON__SCANNERSICKS300_HPP_
+#ifndef SICKS300_ROS2__COMMON__SCANNERSICKS300_HPP_
+#define SICKS300_ROS2__COMMON__SCANNERSICKS300_HPP_
 
 // base classes
 #include <math.h>
@@ -25,8 +25,8 @@
 #include <string>
 #include <vector>
 
-#include "sicks300_2/common/SerialIO.hpp"
-#include "sicks300_2/common/TelegramS300.hpp"
+#include "sicks300_ros2/common/SerialIO.hpp"
+#include "sicks300_ros2/common/TelegramS300.hpp"
 
 /**
  * Driver class for the laser scanner SICK S300 Professional.
@@ -127,4 +127,4 @@ private:
     std::vector<ScanPolarType> & vecScanPolar);
 };
 
-#endif  // SICKS300_2__COMMON__SCANNERSICKS300_HPP_
+#endif  // SICKS300_ROS2__COMMON__SCANNERSICKS300_HPP_

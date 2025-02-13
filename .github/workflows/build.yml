@@ -22,6 +22,6 @@ jobs:
       - name: Install dependencies
         uses: ros-tooling/action-ros-ci@0.3.13
         with:
-          package-name: sicks300_2
+          package-name: sicks300_ros2
           target-ros2-distro: jazzy
           skip-tests: false

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(sicks300_2)
+project(sicks300_ros2)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to Release as none was specified.")
@@ -101,7 +101,7 @@ target_link_libraries(${executable_name}
   rclcpp::rclcpp
 )
 
-rclcpp_components_register_nodes(${library_name} "sicks300_2::SickS300")
+rclcpp_components_register_nodes(${library_name} "sicks300_ros2::SickS300")
 
 # Scan filter executable
 add_executable(scan_filter
