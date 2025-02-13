@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SICKS300_2__SICKS300_HPP_
-#define SICKS300_2__SICKS300_HPP_
+#ifndef SICKS300_ROS2__SICKS300_HPP_
+#define SICKS300_ROS2__SICKS300_HPP_
 
 // C++
 #include <vector>
@@ -29,15 +29,15 @@
 #include "diagnostic_msgs/msg/diagnostic_array.hpp"
 
 // Common
-#include "sicks300_2/common/ScannerSickS300.hpp"
+#include "sicks300_ros2/common/ScannerSickS300.hpp"
 
-namespace sicks300_2
+namespace sicks300_ros2
 {
 
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
 /**
- * @class sicks300_2::SickS300
+ * @class sicks300_ros2::SickS300
  * @brief ROS2 driver for the SICK S300 Professional laser scanner
  */
 class SickS300 : public rclcpp_lifecycle::LifecycleNode
@@ -179,6 +179,6 @@ protected:
   ScannerSickS300 scanner_;
 };
 
-}  // namespace sicks300_2
+}  // namespace sicks300_ros2
 
-#endif  // SICKS300_2__SICKS300_HPP_
+#endif  // SICKS300_ROS2__SICKS300_HPP_

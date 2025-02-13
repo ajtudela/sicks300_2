@@ -13,14 +13,14 @@
 // limitations under the License.
 
 #include "rclcpp/rclcpp.hpp"
-#include "sicks300_2/sicks300.hpp"
+#include "sicks300_ros2/sicks300.hpp"
 
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
   rclcpp::executors::SingleThreadedExecutor exe;
-  auto node = std::make_shared<sicks300_2::SickS300>();
+  auto node = std::make_shared<sicks300_ros2::SickS300>();
   exe.add_node(node->get_node_base_interface());
   exe.spin();
   rclcpp::shutdown();

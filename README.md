@@ -1,8 +1,8 @@
-# sicks300_2
+# sicks300_ros2
 
 ![ROS2](https://img.shields.io/badge/ros2-humble-blue?logo=ros&logoColor=white)
-![License](https://img.shields.io/github/license/ajtudela/sicks300_2)
-[![Build](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml/badge.svg)](https://github.com/ajtudela/sicks300_2/actions/workflows/build.yml)
+![License](https://img.shields.io/github/license/ajtudela/sicks300_ros2)
+[![Build](https://github.com/ajtudela/sicks300_ros2/actions/workflows/build.yml/badge.svg)](https://github.com/ajtudela/sicks300_ros2/actions/workflows/build.yml)
 
 ## Overview
 
@@ -18,7 +18,7 @@ However, it does not cover the full functionality of the protocol:
 
 **Keywords:** ROS2, laser, driver, sick s300, lifecycle
 
-The sicks300_2 package has been tested under [ROS2] Humble on [Ubuntu] 22.04. but ported to ROS2. This is research code, expect that it changes often and any fitness for a particular purpose is disclaimed.
+The sicks300_ros2 package has been tested under [ROS2] Humble on [Ubuntu] 22.04. but ported to ROS2. This is research code, expect that it changes often and any fitness for a particular purpose is disclaimed.
 
 ## S300 Configuration
 Here are a few notes about how to best configure the S300:
@@ -45,7 +45,7 @@ Here are a few notes about how to best configure the S300:
 To build from source, clone the latest version from this repository into your colcon workspace and compile the package using
 ```bash
 cd colcon_workspace/src
-git clone https://github.com/ajtudela/sicks300_2.git
+git clone https://github.com/ajtudela/sicks300_ros2.git
 cd ../
 rosdep install -i --from-path src --rosdistro humble -y
 colcon build
@@ -59,19 +59,19 @@ Add the user to the dialout group to access the USB port:
 sudo usermod -a -G dialout $USER
 ```
 
-Run the sicks300_2 node with:
+Run the sicks300_ros2 node with:
 ```bash
-ros2 run sicks300_2 sicks300_2
+ros2 run sicks300_ros2 sicks300_ros2
 ```
 
 Optionally, you can launch this node with an angulor bound filter:
 ```bash
-ros2 launch sicks300_2 scan_with_filter.launch.py
+ros2 launch sicks300_ros2 scan_with_filter.launch.py
 ```
 
 ## Nodes
 
-### sicks300_2
+### sicks300_ros2
 
 Driver for the Sick S300 Safety laser scanners.
 
